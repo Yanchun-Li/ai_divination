@@ -31,3 +31,7 @@ out/
 
 # 部署时由 Docker 生成的静态目录，勿提交
 backend/app/static/
+
+# 环境变量
+backend/.env
+web/.env.local
