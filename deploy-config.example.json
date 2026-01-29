@@ -1,0 +1,11 @@
+{
+  "repo_url": "https://github.com/你的用户名/AI_Divination",
+  "service_name": "ai-divination",
+  "branch": "main",
+  "port": 8000,
+  "env_vars": {
+    "FRONTEND_ORIGIN": "https://ai-divination.ai-builders.space",
+    "REDIS_URL": "redis://默认或你的 Redis 地址",
+    "AI_BUILDER_API_KEY": "在部署请求里填写，勿提交到仓库"
+  }
+}

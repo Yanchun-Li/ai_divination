@@ -1,0 +1,49 @@
+# Normalize line endings for cross-platform development
+#
+# - text=auto: let Git handle text files, normalizing to LF in the repo
+# - explicit eol=lf for script and source file types to avoid CRLF issues on Windows
+# - mark common binary formats as binary
+
+* text=auto
+
+# Force LF for source files / scripts / config so CI and containers behave consistently
+*.py      text eol=lf
+*.sh      text eol=lf
+*.bash    text eol=lf
+Dockerfile text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.json    text eol=lf
+*.js      text eol=lf
+*.jsx     text eol=lf
+*.ts      text eol=lf
+*.tsx     text eol=lf
+*.css     text eol=lf
+*.html    text eol=lf
+*.md      text eol=lf
+
+# Lockfiles and package manifests (keep LF)
+package-lock.json text eol=lf
+pyproject.toml text eol=lf
+uv.lock text eol=lf
+
+# Generated/build output should be treated as binary/ignored
+web/.next/** binary
+web/out/** binary
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar.gz binary
+
+# Prevent accidental normalization of secrets / env files (treat as binary to avoid modifications)
+*.env binary
+.env* binary
+

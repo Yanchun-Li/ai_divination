@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.dist-info/
+
+# Virtual envs
+.venv/
+
+# Tooling
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local app data
+web/data/
+backend/data/
+# Node
+node_modules/
+.next/
+
+# Next.js
+out/
+
+# 部署时由 Docker 生成的静态目录，勿提交
+backend/app/static/

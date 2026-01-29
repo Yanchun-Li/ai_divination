@@ -1,0 +1,36 @@
+[project]
+name = "ai-divination"
+version = "0.1.0"
+description = "AI Divination app"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Your Name" }]
+keywords = ["ai", "app"]
+
+# Add runtime deps here as needed
+# dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.3",
+  "mypy>=1.8",
+]
+
+[project.scripts]
+ai-divination = "ai_divination.app:main"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unreachable = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+strict_equality = true

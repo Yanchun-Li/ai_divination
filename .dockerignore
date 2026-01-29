@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# 本地环境与密钥
+.env
+.env.*
+!.env.example
+*.local
+deploy-config.json
+
+# Python
+__pycache__
+*.py[cod]
+.venv
+.mypy_cache
+.ruff_cache
+.pytest_cache
+*.egg-info
+
+# Node / Next（在镜像内重新安装与构建）
+web/node_modules
+web/.next
+web/out
+
+# 文档与开发用
+README.md
+DEPLOY.md
+*.md
+.github
+tests
+mypy.ini
+ruff.toml
+Taskfile.yml
+
+# 根目录 pyproject（本镜像只用 backend/）
+pyproject.toml

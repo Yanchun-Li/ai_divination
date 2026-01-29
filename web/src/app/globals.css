@@ -1,0 +1,818 @@
+:root {
+  --ink: #2d2926;
+  --ink-soft: #7a736d;
+  --mist: rgba(255, 252, 248, 0.92);
+  --glass: rgba(255, 255, 255, 0.45);
+  --accent: #c49a6c; /* Elegant metallic gold */
+  --accent-soft: #fdf5e6;
+  --accent-dark: #8b6d4b;
+  --shadow-sm: 0 8px 32px rgba(139, 109, 75, 0.08);
+  --shadow-lg: 0 40px 100px rgba(85, 65, 45, 0.12);
+  --bg-light: radial-gradient(1400px 1000px at 0% 0%, #fef9f3 0%, #f4eee8 50%, #f7f0eb 100%);
+  --radius-xl: 48px;
+  --radius-lg: 32px;
+  --font-serif: "Shippori Mincho", "Noto Serif SC", "Noto Serif JP", serif;
+  --font-sans: "Inter", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Microsoft YaHei", sans-serif;
+  --shimmer: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+[data-theme="dark"] {
+  --ink: #f0f4ef;
+  --ink-soft: #a8b5a2;
+  --mist: rgba(22, 26, 22, 0.94);
+  --glass: rgba(30, 35, 30, 0.6);
+  --accent: #d4af37;
+  --accent-soft: #2d3a2d;
+  --accent-dark: #f1c40f;
+  --shadow-sm: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 40px 100px rgba(0, 0, 0, 0.5);
+  --bg-dark: radial-gradient(1400px 1000px at 0% 0%, #0d1a0d 0%, #050a05 100%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg-light);
+  min-height: 100vh;
+  line-height: 1.8;
+  transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] body {
+  background: var(--bg-dark);
+}
+
+/* Luxury Material: Floating depth layers */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  width: 80vw;
+  height: 80vw;
+  border-radius: 50%;
+  filter: blur(140px);
+  z-index: -1;
+  opacity: 0.25;
+  pointer-events: none;
+  animation: organicFloat 30s infinite alternate ease-in-out;
+}
+
+body::before {
+  background: radial-gradient(circle, #fceecb 0%, transparent 70%);
+  top: -10%;
+  left: -10%;
+}
+
+body::after {
+  background: radial-gradient(circle, #f9e2f0 0%, transparent 70%);
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -7s;
+}
+
+@keyframes organicFloat {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33% { transform: translate(4% , 8%) scale(1.1) rotate(5deg); }
+  66% { transform: translate(-3%, 5%) scale(0.95) rotate(-3deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+h1, h2, h3, h4, .logo-text, .hero-title, .fortune-main-text, .bubble-content, .ritual-intro h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.layout-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* High-end Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 0 40px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-icon {
+  font-size: 32px;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(196, 154, 108, 0.4);
+}
+
+.logo-text {
+  font-size: 22px;
+  letter-spacing: 0.2em;
+  opacity: 0.9;
+  color: var(--ink);
+}
+
+.header-actions {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.lang-switcher {
+  display: flex;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 4px;
+  border-radius: 999px;
+  gap: 2px;
+  border: 1px solid rgba(139, 109, 75, 0.1);
+}
+
+.lang-switcher button {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.lang-switcher button.active {
+  background: white;
+  color: var(--accent-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 15px;
+  padding: 10px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.4s;
+  letter-spacing: 0.1em;
+}
+
+.nav-tab.active {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.nav-tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.nav-tab.active::after {
+  width: 100%;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 109, 75, 0.18);
+  background: transparent;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Daily View: Focus & Hierarchy */
+.view-daily {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 80px;
+  padding-bottom: 120px;
+}
+
+.daily-hero {
+  text-align: center;
+  max-width: 800px;
+}
+
+.date-badge {
+  font-size: 14px;
+  letter-spacing: 0.4em;
+  color: var(--accent-dark);
+  margin-bottom: 32px;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.4;
+  margin-bottom: 24px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.hero-title span {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title span::after {
+  content: "";
+  position: absolute;
+  bottom: 8%;
+  left: -2%;
+  right: -2%;
+  height: 25%;
+  background: var(--accent-soft);
+  z-index: -1;
+  opacity: 0.6;
+}
+
+/* Focused Fortune Card: High-end Shimmer Material */
+.fortune-card {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+}
+
+.fortune-card::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(196, 154, 108, 0.15), transparent 70%);
+  z-index: -1;
+  filter: blur(20px);
+}
+
+.card-glass {
+  background: var(--mist);
+  backdrop-filter: blur(30px);
+  border-radius: var(--radius-xl);
+  padding: 64px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-glass::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: var(--shimmer);
+  transform: skewX(-25deg);
+  animation: shimmer 8s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  30% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.ritual-status {
+  font-size: 12px;
+  letter-spacing: 0.5em;
+  color: var(--accent-dark);
+  display: block;
+  margin-bottom: 48px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.fortune-main-text {
+  font-size: 24px;
+  line-height: 2;
+  margin-bottom: 60px;
+  text-align: justify;
+  color: var(--ink);
+  opacity: 0.95;
+}
+
+.fortune-aspects {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 64px;
+  border-top: 1px solid rgba(139, 109, 75, 0.1);
+  padding-top: 40px;
+}
+
+.aspect {
+  text-align: center;
+  flex: 1;
+}
+
+.aspect-label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  letter-spacing: 0.2em;
+}
+
+.aspect-value {
+  font-size: 16px;
+  font-family: var(--font-serif);
+  color: var(--accent-dark);
+  font-weight: 500;
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--ink);
+  color: white;
+  border: none;
+  padding: 22px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+  letter-spacing: 0.2em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  transform: translateY(-4px) scale(1.02);
+  background: #000;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Divination View: Immersive Focus */
+.view-divination {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 48px;
+  height: calc(100vh - 240px);
+  padding-bottom: 60px;
+}
+
+.chat-container {
+  background: var(--glass);
+  backdrop-filter: blur(40px);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.ritual-intro {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.intro-content {
+  max-width: 440px;
+}
+
+.intro-content h3 {
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+
+.ritual-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(139, 109, 75, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.8;
+  resize: none;
+  outline: none;
+  transition: all 0.4s ease;
+}
+
+.ritual-textarea:focus {
+  background: white;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(196, 154, 108, 0.1);
+}
+
+.divination-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.divination-controls.compact {
+  margin: 12px 0 28px;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-button {
+  border: 1px solid rgba(139, 109, 75, 0.2);
+  background: transparent;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.3s ease;
+}
+
+.control-button.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+.divination-status {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.divination-status.error {
+  color: #b34a4a;
+}
+
+.divination-reason {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.ai-detail {
+  margin-top: 16px;
+  font-size: 16px;
+  color: var(--ink);
+  opacity: 0.9;
+}
+
+/* Bubble Styles: Soft & Human */
+.bubble {
+  max-width: 80%;
+  margin-bottom: 40px;
+  animation: slideUp 0.8s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bubble-content {
+  padding: 24px 32px;
+  border-radius: 32px;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.bubble.ai .bubble-content {
+  background: var(--mist);
+  box-shadow: var(--shadow-sm);
+  border-bottom-left-radius: 4px;
+  color: var(--ink);
+}
+
+.bubble.user .bubble-content {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  border-bottom-right-radius: 4px;
+  border: 1px solid rgba(139, 109, 75, 0.1);
+}
+
+.divination-result {
+  border-left: 3px solid var(--accent);
+  padding-left: 24px;
+  margin: 28px 0;
+}
+
+.ai-empathy {
+  margin-top: 32px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--accent-dark);
+  opacity: 0.9;
+}
+
+.input-bar {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 10px 10px 10px 32px;
+  border-radius: 999px;
+  align-items: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(139, 109, 75, 0.1);
+}
+
+.input-bar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.send-btn {
+  background: var(--ink);
+  color: white;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.send-btn:hover {
+  transform: scale(1.1);
+}
+
+/* High-end Sidebar */
+.auth-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-card {
+  background: var(--mist);
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-status {
+  display: grid;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 20;
+}
+
+.auth-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.auth-panel {
+  position: relative;
+  width: min(90vw, 420px);
+  background: var(--mist);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  display: grid;
+  gap: 14px;
+  z-index: 2;
+}
+
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-header h3 {
+  font-size: 22px;
+}
+
+.auth-hint {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.auth-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.auth-field input {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(139, 109, 75, 0.15);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.auth-error {
+  font-size: 12px;
+  color: #b85c5c;
+}
+
+.auth-actions {
+  display: grid;
+  gap: 10px;
+}
+
+/* Immersive Fade */
+.animate-fade-in {
+  animation: immersiveFade 1.6s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+@keyframes immersiveFade {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.horoscope-panel {
+  margin-top: 40px;
+}
+
+.horoscope-title {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.4em;
+  color: var(--accent-dark);
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.horoscope-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.horoscope-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.horoscope-field input,
+.horoscope-field select {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(139, 109, 75, 0.15);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.horoscope-field input:focus,
+.horoscope-field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(196, 154, 108, 0.15);
+}
+
+.horoscope-field select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.horoscope-hint {
+  font-size: 12px;
+  color: var(--accent-dark);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.horoscope-status {
+  font-size: 13px;
+  text-align: center;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+
+.horoscope-status.error {
+  color: #b85c5c;
+}
+
+.horoscope-details {
+  margin-top: 32px;
+  border-top: 1px solid rgba(139, 109, 75, 0.12);
+  padding-top: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.detail-row span:first-child {
+  color: var(--ink-soft);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.detail-row span:last-child {
+  color: var(--accent-dark);
+  font-family: var(--font-serif);
+  text-align: right;
+}
+
+.detail-row.detail-description {
+  align-items: flex-start;
+}
+
+.detail-row.detail-description span:last-child {
+  color: var(--ink);
+  font-family: var(--font-sans);
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .view-divination {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .auth-sidebar {
+    display: none;
+  }
+  .layout-container {
+    padding: 0 20px;
+  }
+
+  .horoscope-controls {
+    grid-template-columns: 1fr;
+  }
+}

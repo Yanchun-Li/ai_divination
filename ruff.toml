@@ -1,0 +1,12 @@
+# ruff configuration
+line-length = 100
+src = ["src", "tests"]
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = []
+
+[format]
+quote-style = "double"
+indent-style = "space"

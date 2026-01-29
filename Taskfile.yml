@@ -1,0 +1,19 @@
+version: "3"
+
+tasks:
+  backend:setup:
+    cmds:
+      - cd backend && uv venv
+      - cd backend && uv pip install -e .
+
+  backend:dev:
+    cmds:
+      - cd backend && uv run uvicorn app.main:app --reload --port 8000
+
+  frontend:install:
+    cmds:
+      - cd web && npm install
+
+  frontend:dev:
+    cmds:
+      - cd web && npm run dev
