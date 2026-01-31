@@ -68,6 +68,15 @@ def init_db() -> None:
         """
     )
     conn.commit()
+    
+    # 迁移：为旧表添加 lang 列（如果不存在）
+    try:
+        cursor.execute("ALTER TABLE divination_sessions_v2 ADD COLUMN lang TEXT NOT NULL DEFAULT 'zh'")
+        conn.commit()
+    except Exception:
+        # 列已存在，忽略
+        pass
+    
     conn.close()
 
 
