@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useDivination, getStartButtonText } from "../../hooks/useDivination";
-import { LiuyaoManual, LiuyaoAI } from "./liuyao";
-import { TarotManual, TarotAI } from "./tarot";
+import { LiuyaoManual, LiuyaoAI, HexagramDisplay } from "./liuyao";
+import { TarotManual, TarotAI, SpreadDisplay } from "./tarot";
 import type {
   DivinationMode,
   DivinationMethod,
@@ -301,6 +301,37 @@ export function DivinationView({
       {/* 阶段4：结果展示 */}
       {state.stage === "completed" && state.interpretation && (
         <div className="result-section">
+          {/* 问题回显 */}
+          <div className="question-display">
+            <span className="question-label">你的问题</span>
+            <p className="question-text">「{state.question}」</p>
+          </div>
+
+          {/* 占卜结果展示 */}
+          <div className="divination-result-card">
+            <h3 className="result-card-title">占卜结果</h3>
+            
+            {/* 六爻结果 */}
+            {localResult && localResult.type === "liuyao" && (
+              <HexagramDisplay
+                hexagram={(localResult as LiuyaoResult).primary_hexagram}
+                lines={(localResult as LiuyaoResult).lines}
+                relatingHexagram={(localResult as LiuyaoResult).relating_hexagram ?? undefined}
+                showLines={true}
+                compact={false}
+              />
+            )}
+
+            {/* 塔罗结果 */}
+            {localResult && localResult.type === "tarot" && (
+              <SpreadDisplay
+                draws={(localResult as TarotResult).cards}
+                showAll={true}
+                compact={false}
+              />
+            )}
+          </div>
+
           {/* 解读内容 */}
           <div className="interpretation-card">
             <h3 className="interpretation-title">占卜解读</h3>
@@ -736,6 +767,25 @@ export function DivinationView({
 
         .btn-secondary:hover {
           background: rgba(0, 0, 0, 0.05);
+        }
+
+        .divination-result-card {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          padding: 1.5rem;
+          background: var(--glass, rgba(255, 255, 255, 0.45));
+          border-radius: 16px;
+          backdrop-filter: blur(10px);
+        }
+
+        .result-card-title {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: var(--ink, #2d2926);
+          margin: 0;
+          text-align: center;
+          font-family: var(--font-serif, "Shippori Mincho", serif);
         }
       `}</style>
     </div>
