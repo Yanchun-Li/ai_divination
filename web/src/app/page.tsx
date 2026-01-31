@@ -60,7 +60,8 @@ const signDateRanges: Record<HoroscopeSign, string> = {
 };
 
 export default function Home() {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+  // 生产环境保持同源请求，避免误回退到 localhost
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "";
   const [theme, setTheme] = useState<Theme>("dark");
   const [lang, setLang] = useState<Language>("zh");
   const [showLangMenu, setShowLangMenu] = useState(false);
