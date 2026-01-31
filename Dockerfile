@@ -5,6 +5,8 @@ COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
 # 同域部署时 API 与前端同源，不设 NEXT_PUBLIC_API_BASE 或设为空
+# ローカル開発用の .env.local が混入すると API が localhost を指すため削除
+RUN rm -f .env.local
 ARG NEXT_PUBLIC_API_BASE=
 ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE
 RUN npm run build
