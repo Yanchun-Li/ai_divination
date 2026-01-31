@@ -385,59 +385,19 @@ export default function Home() {
     setMessages((prev) => [...prev, message]);
   };
 
-  const sendDivination = async (question: string) => {
-    const trimmed = question.trim();
-    if (!trimmed || isDivinationLoading) return;
-    setDivinationError(null);
-    setIsDivinationLoading(true);
-    setIsRitualStarted(true);
-    appendMessage({ id: createMessageId(), role: "user", content: trimmed });
-
-    const payload: Record<string, string> = {
-      question: trimmed,
-      mode: divinationMode,
-    };
-    if (divinationMode === "self") payload.method = divinationMethod;
-
-    try {
-      const response = await fetch(`${apiBase}/api/divination`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { detail?: string } | null;
-        throw new Error(data?.detail ?? "Divination failed");
-      }
-      const data = (await response.json()) as DivinationResponse;
-      appendMessage({
-        id: createMessageId(),
-        role: "ai",
-        content: data.explanation.summary,
-        method: data.method,
-        result: data.result,
-        explanation: data.explanation,
-        selectionReason: data.mode === "ai" ? data.selection?.reason : undefined,
-      });
-      if (isLoggedIn) {
-        void loadRecords();
-      }
-      setChatInput("");
-      setRitualQuestion("");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : uiText.startError;
-      setDivinationError(message);
-    } finally {
-      setIsDivinationLoading(false);
+  // 占卜完成后的回调
+  const handleDivinationComplete = (result: any, interpretation: any) => {
+    appendMessage({
+      id: createMessageId(),
+      role: "ai",
+      content: interpretation?.summary || "占卜完成",
+      method: divinationMethod,
+      result: result,
+      explanation: interpretation,
+    });
+    if (isLoggedIn) {
+      void loadRecords();
     }
-  };
-
-  const handleIntroStart = () => {
-    // 已经由 DivinationView 处理
-  };
-
-  const handleChatSend = () => {
-    void sendDivination(chatInput);
   };
 
   return (
@@ -611,162 +571,11 @@ export default function Home() {
         ) : (
           <section className="view-divination animate-fade-in">
             <div className="chat-container">
-              {!isRitualStarted ? (
-                <DivinationView 
-                  onComplete={(result, interpretation) => {
-                    // 处理完成后的逻辑
-                    appendMessage({
-                      id: createMessageId(),
-                      role: "ai",
-                      content: interpretation?.summary || "占卜完成",
-                      method: divinationMethod,
-                      result: result as any,
-                      explanation: interpretation as any,
-                    });
-                    // 切换到聊天视图显示结果
-                    setIsRitualStarted(true);
-                  }}
-                />
-              ) : isManualDivination ? (
-                /* 手动占卜界面 - 已经由 DivinationView 处理，这里可以保留作为兼容或移除 */
-                <div className="manual-divination-session">
-                  <div className="manual-header">
-                    <button 
-                      className="back-button"
-                      onClick={() => {
-                        setIsManualDivination(false);
-                        setIsRitualStarted(false);
-                      }}
-                    >
-                      ← 返回
-                    </button>
-                  </div>
-                  <DivinationView 
-                    onComplete={(result, interpretation) => {
-                      appendMessage({
-                        id: createMessageId(),
-                        role: "ai",
-                        content: interpretation?.summary || "占卜完成",
-                        method: divinationMethod,
-                        result: result as any,
-                        explanation: interpretation as any,
-                      });
-                      setIsManualDivination(false);
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="chat-session">
-                  {messages.length === 0 && (
-                    <div className="bubble ai">
-                      <div className="bubble-content">{t.chatIntro}</div>
-                    </div>
-                  )}
-                  <div className="divination-controls compact">
-                    <div className="control-row">
-                      <span className="control-label">{uiText.modeLabel}</span>
-                      <div className="control-buttons">
-                        <button
-                          className={`control-button ${divinationMode === "ai" ? "active" : ""}`}
-                          onClick={() => setDivinationMode("ai")}
-                          type="button"
-                        >
-                          {uiText.modeAi}
-                        </button>
-                        <button
-                          className={`control-button ${divinationMode === "self" ? "active" : ""}`}
-                          onClick={() => setDivinationMode("self")}
-                          type="button"
-                        >
-                          {uiText.modeSelf}
-                        </button>
-                      </div>
-                    </div>
-                    {divinationMode === "self" && (
-                      <div className="control-row">
-                        <span className="control-label">{uiText.methodLabel}</span>
-                        <div className="control-buttons">
-                          <button
-                            className={`control-button ${divinationMethod === "tarot" ? "active" : ""}`}
-                            onClick={() => setDivinationMethod("tarot")}
-                            type="button"
-                          >
-                            {uiText.methodTarot}
-                          </button>
-                          <button
-                            className={`control-button ${divinationMethod === "liuyao" ? "active" : ""}`}
-                            onClick={() => setDivinationMethod("liuyao")}
-                            type="button"
-                          >
-                            {uiText.methodLiuyao}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {messages.map((message) => (
-                    <div key={message.id} className={`bubble ${message.role}`}>
-                      <div className="bubble-content">
-                        {message.role === "ai" && message.result && message.explanation ? (
-                          <>
-                            <div className="divination-result">
-                              <p>
-                                {uiText.resultTitle} · {methodLabel(message.method)}
-                              </p>
-                              {message.result.type === "tarot" ? (
-                                <>
-                                  <p>
-                                    {message.result.card} · {message.result.orientation}
-                                  </p>
-                                  <p>{message.result.keywords}</p>
-                                </>
-                              ) : (
-                                <>
-                                  <p>{message.result.label}</p>
-                                  <p>{message.result.meaning}</p>
-                                </>
-                              )}
-                              {message.selectionReason && (
-                                <p className="divination-reason">
-                                  {uiText.selectionHint} {message.selectionReason}
-                                </p>
-                              )}
-                            </div>
-                            <div className="ai-empathy">{message.explanation.summary}</div>
-                            <p className="ai-detail">{message.explanation.explanation}</p>
-                            <p className="ai-detail">{message.explanation.advice}</p>
-                            <p className="ai-detail">{message.explanation.ritual_ending}</p>
-                          </>
-                        ) : (
-                          message.content
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {isDivinationLoading && <div className="divination-status">{uiText.sending}</div>}
-                  {divinationError && <div className="divination-status error">{divinationError}</div>}
-                  <div className="chat-footer" style={{ marginTop: "auto", paddingTop: "40px" }}>
-                    <div className="input-bar">
-                      <input
-                        type="text"
-                        placeholder={t.inputPlaceholder}
-                        value={chatInput}
-                        onChange={(event) => setChatInput(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" && !event.shiftKey) {
-                            event.preventDefault();
-                            handleChatSend();
-                          }
-                        }}
-                        disabled={isDivinationLoading}
-                      />
-                      <button className="send-btn" aria-label={t.send} onClick={handleChatSend} disabled={isDivinationLoading}>
-                        &gt;
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <DivinationView 
+                onComplete={(result, interpretation) => {
+                  handleDivinationComplete(result, interpretation);
+                }}
+              />
             </div>
 
             <aside className="auth-sidebar">

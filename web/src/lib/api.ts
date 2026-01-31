@@ -175,47 +175,6 @@ export async function getDivinationRecords(): Promise<{
   );
 }
 
-// ===== 旧版占卜 API（兼容） =====
-
-interface OldDivinationRequest {
-  question: string;
-  mode: "ai" | "self";
-  method?: "tarot" | "roulette";
-  user_seed?: string;
-}
-
-interface OldDivinationResponse {
-  mode: "ai" | "self";
-  method: "tarot" | "roulette";
-  selection: { tool: string; reason: string };
-  result: {
-    type: string;
-    card?: string;
-    orientation?: string;
-    keywords?: string;
-    label?: string;
-    meaning?: string;
-  };
-  explanation: {
-    summary: string;
-    explanation: string;
-    advice: string;
-    ritual_ending: string;
-  };
-}
-
-/**
- * 旧版占卜接口（保持兼容）
- */
-export async function legacyDivination(
-  data: OldDivinationRequest
-): Promise<OldDivinationResponse> {
-  return request<OldDivinationResponse>("/api/divination", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
 // ===== 工具函数 =====
 
 /**
