@@ -186,6 +186,7 @@ class CreateSessionRequest(BaseModel):
     mode: DivinationMode
     method: DivinationMethod
     user_seed: str | None = None
+    lang: str = Field(default="zh", description="语言: zh/ja/en")
 
 
 class CreateSessionResponse(BaseModel):

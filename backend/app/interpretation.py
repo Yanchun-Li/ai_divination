@@ -14,8 +14,9 @@ from .models.divination_v2 import (
     DivinationInterpretation,
 )
 
-# ===== System Prompt =====
-SYSTEM_PROMPT = """你是一位温和、睿智的占卜解读者。你的任务是基于占卜结果为用户提供洞察和建议。
+# ===== System Prompts by Language =====
+SYSTEM_PROMPTS = {
+    "zh": """你是一位温和、睿智的占卜解读者。你的任务是基于占卜结果为用户提供洞察和建议。
 
 【核心原则】
 1. 不做绝对化断言，使用"可能"、"倾向于"、"值得考虑"等措辞
@@ -44,7 +45,73 @@ SYSTEM_PROMPT = """你是一位温和、睿智的占卜解读者。你的任务�
 - 提供3-5条简短的解释要点
 - 每条10-20字
 - 连接占卜结果与用户问题
-- 不要暴露复杂的推理过程，只展示关键洞察"""
+- 不要暴露复杂的推理过程，只展示关键洞察""",
+
+    "ja": """あなたは穏やかで賢明な占い師です。占いの結果に基づいて、ユーザーに洞察とアドバイスを提供することがあなたの役割です。
+
+【基本原則】
+1. 断定的な表現を避け、「かもしれない」「傾向がある」「検討する価値がある」などの言葉を使う
+2. 占いは自己省察のツールであり、運命の審判ではない
+3. ユーザーの立場に立って、感情的な共感と実用的なアドバイスを提供する
+4. 正確さを約束せず、占いの啓発的な側面を強調する
+
+【言語スタイル】
+- 簡潔明瞭で、神秘的にしすぎない
+- 温かみがありながらも節度を保ち、専門的でありながらも冷たくない
+- 現代の日本語を使用し、過度に古風な表現を避ける
+
+【出力形式】
+必ず有効なJSONを返してください。以下のフィールドを含めてください：
+{
+  "summary": "一文の核心的な結論（15-25文字）",
+  "advice": "具体的で実行可能なアドバイス（30-50文字）",
+  "timing": "タイミングのヒント（10-20文字）",
+  "confidence": "low/medium/high",
+  "reasoning_bullets": ["ポイント1", "ポイント2", "ポイント3"],
+  "follow_up_questions": ["追加質問1", "追加質問2"],
+  "ritual_ending": "温かい締めの言葉（15-25文字）"
+}
+
+【reasoning_bulletsについて】
+- 3-5個の簡潔な説明ポイントを提供
+- 各10-20文字
+- 占いの結果とユーザーの質問を結びつける
+- 複雑な推論過程は見せず、重要な洞察のみを示す""",
+
+    "en": """You are a gentle and wise divination reader. Your task is to provide insights and advice based on divination results.
+
+【Core Principles】
+1. Avoid absolute statements; use words like "may," "tends to," "worth considering"
+2. Divination is a tool for self-reflection, not a verdict of fate
+3. Stand in the user's shoes, providing emotional resonance and practical advice
+4. Don't promise accuracy; emphasize the inspirational nature of divination
+
+【Language Style】
+- Clear and concise, avoid being overly mystical
+- Warm but not excessive, professional but not cold
+- Use modern English, avoid archaic expressions
+
+【Output Format】
+Must return valid JSON with the following fields:
+{
+  "summary": "One-sentence core conclusion (10-20 words)",
+  "advice": "Specific actionable advice (20-40 words)",
+  "timing": "Timing hint (5-15 words)",
+  "confidence": "low/medium/high",
+  "reasoning_bullets": ["Point 1", "Point 2", "Point 3"],
+  "follow_up_questions": ["Follow-up 1", "Follow-up 2"],
+  "ritual_ending": "Warm closing words (10-20 words)"
+}
+
+【About reasoning_bullets】
+- Provide 3-5 brief explanation points
+- Each 5-15 words
+- Connect divination results with user's question
+- Don't expose complex reasoning, only show key insights"""
+}
+
+# Default to Chinese for backward compatibility
+SYSTEM_PROMPT = SYSTEM_PROMPTS["zh"]
 
 
 def _build_liuyao_prompt(
@@ -215,40 +282,82 @@ async def _call_llm(
     return content
 
 
+FALLBACK_TEXTS = {
+    "zh": {
+        "liuyao_summary": "本卦{name}，提示你关注当下的选择",
+        "liuyao_advice": "先观察，再行动。不必急于做决定。",
+        "liuyao_reasoning": ["本卦为{name}，{desc}", "结合你的问题，建议从长计议", "变化中蕴含机会，保持耐心"],
+        "tarot_summary": "牌阵显示：{cards}",
+        "tarot_advice": "关注牌面传递的信息，它反映了你内心的某些想法。",
+        "tarot_reasoning": ["过去的{c0}影响着现在", "现在的{c1}揭示核心议题", "未来的{c2}指向可能的方向"],
+        "timing": "当下是思考的好时机",
+        "follow_up": ["是什么让你想问这个问题？", "你内心倾向于哪个选择？"],
+        "ending": "本次占卜结束，愿你心中更加清晰。",
+    },
+    "ja": {
+        "liuyao_summary": "本卦は{name}、今の選択に注目するよう示しています",
+        "liuyao_advice": "まず観察し、それから行動してください。急いで決める必要はありません。",
+        "liuyao_reasoning": ["本卦は{name}、{desc}", "あなたの質問と合わせて、じっくり考えることをお勧めします", "変化の中にチャンスが潜んでいます、忍耐を持ちましょう"],
+        "tarot_summary": "カードが示すもの：{cards}",
+        "tarot_advice": "カードが伝えるメッセージに注目してください。それはあなたの内なる思いを映し出しています。",
+        "tarot_reasoning": ["過去の{c0}が今に影響しています", "現在の{c1}が核心の問題を明らかにします", "未来の{c2}が可能性の方向を指します"],
+        "timing": "今は考える良いタイミングです",
+        "follow_up": ["なぜこの質問をしたいと思ったのですか？", "心の中ではどちらを選びたいですか？"],
+        "ending": "今回の占いは終了です。心がより明晰になりますように。",
+    },
+    "en": {
+        "liuyao_summary": "The primary hexagram is {name}, suggesting you focus on current choices",
+        "liuyao_advice": "Observe first, then act. No need to rush decisions.",
+        "liuyao_reasoning": ["Primary hexagram is {name}, {desc}", "Considering your question, take time to deliberate", "Opportunities lie within change, be patient"],
+        "tarot_summary": "The spread shows: {cards}",
+        "tarot_advice": "Pay attention to the message the cards convey. They reflect some of your inner thoughts.",
+        "tarot_reasoning": ["The past card {c0} influences the present", "The present card {c1} reveals the core issue", "The future card {c2} points to possible directions"],
+        "timing": "Now is a good time for reflection",
+        "follow_up": ["What made you want to ask this question?", "Which choice does your heart lean towards?"],
+        "ending": "This reading has concluded. May your heart find more clarity.",
+    },
+}
+
+
 def _create_fallback_interpretation(
     question: str,
     method: str,
     result: dict[str, Any],
+    lang: str = "zh",
 ) -> DivinationInterpretation:
     """创建降级解读（当LLM调用失败时）。"""
+    texts = FALLBACK_TEXTS.get(lang, FALLBACK_TEXTS["zh"])
+    
     if method == "liuyao":
         primary = result.get("primary_hexagram", {})
-        summary = f"本卦{primary.get('name', '未知')}，提示你关注当下的选择"
-        advice = "先观察，再行动。不必急于做决定。"
+        name = primary.get("name", "未知" if lang == "zh" else "Unknown")
+        desc = primary.get("description", "")
+        summary = texts["liuyao_summary"].format(name=name)
+        advice = texts["liuyao_advice"]
         reasoning = [
-            f"本卦为{primary.get('name', '未知')}，{primary.get('description', '')}",
-            "结合你的问题，建议从长计议",
-            "变化中蕴含机会，保持耐心",
+            texts["liuyao_reasoning"][0].format(name=name, desc=desc),
+            texts["liuyao_reasoning"][1],
+            texts["liuyao_reasoning"][2],
         ]
     else:
         cards = result.get("cards", [])
-        card_names = [c.get("card", {}).get("name", "未知") for c in cards]
-        summary = f"牌阵显示：{' → '.join(card_names)}"
-        advice = "关注牌面传递的信息，它反映了你内心的某些想法。"
+        card_names = [c.get("card", {}).get("name", "Unknown") for c in cards]
+        summary = texts["tarot_summary"].format(cards=" → ".join(card_names))
+        advice = texts["tarot_advice"]
         reasoning = [
-            f"过去的{card_names[0] if len(card_names) > 0 else '牌'}影响着现在",
-            f"现在的{card_names[1] if len(card_names) > 1 else '牌'}揭示核心议题",
-            f"未来的{card_names[2] if len(card_names) > 2 else '牌'}指向可能的方向",
+            texts["tarot_reasoning"][0].format(c0=card_names[0] if len(card_names) > 0 else "card"),
+            texts["tarot_reasoning"][1].format(c1=card_names[1] if len(card_names) > 1 else "card"),
+            texts["tarot_reasoning"][2].format(c2=card_names[2] if len(card_names) > 2 else "card"),
         ]
 
     return DivinationInterpretation(
         summary=summary,
         advice=advice,
-        timing="当下是思考的好时机",
+        timing=texts["timing"],
         confidence=Confidence.LOW,
         reasoning_bullets=reasoning,
-        follow_up_questions=["是什么让你想问这个问题？", "你内心倾向于哪个选择？"],
-        ritual_ending="本次占卜结束，愿你心中更加清晰。",
+        follow_up_questions=texts["follow_up"],
+        ritual_ending=texts["ending"],
     )
 
 
@@ -257,6 +366,7 @@ async def generate_interpretation_v2(
     method: str,
     mode: str,
     result: dict[str, Any],
+    lang: str = "zh",
 ) -> DivinationInterpretation:
     """生成占卜解读。"""
     # 构建提示词
@@ -265,9 +375,12 @@ async def generate_interpretation_v2(
     else:
         user_prompt = _build_tarot_prompt(question, mode, result)
 
+    # 选择对应语言的系统提示词
+    system_prompt = SYSTEM_PROMPTS.get(lang, SYSTEM_PROMPTS["zh"])
+
     try:
         # 调用LLM
-        content = await _call_llm(SYSTEM_PROMPT, user_prompt, temperature=0.5)
+        content = await _call_llm(system_prompt, user_prompt, temperature=0.5)
 
         # 解析响应
         parsed = _safe_parse_json(content)
@@ -308,4 +421,4 @@ async def generate_interpretation_v2(
         print(f"LLM interpretation error: {e}")
 
     # 返回降级解读
-    return _create_fallback_interpretation(question, method, result)
+    return _create_fallback_interpretation(question, method, result, lang)

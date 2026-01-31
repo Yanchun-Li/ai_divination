@@ -60,6 +60,7 @@ def init_db() -> None:
             result TEXT NULL,
             interpretation TEXT NULL,
             manual_steps TEXT NULL,
+            lang TEXT NOT NULL DEFAULT 'zh',
             created_at TEXT NOT NULL,
             completed_at TEXT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
@@ -154,6 +155,7 @@ def create_divination_session_v2(
     mode: str,
     method: str,
     seed: str,
+    lang: str = "zh",
 ) -> dict:
     """Create a new v2 divination session."""
     created_at = datetime.utcnow().isoformat()
@@ -162,10 +164,10 @@ def create_divination_session_v2(
     cursor.execute(
         """
         INSERT INTO divination_sessions_v2
-            (id, user_id, question, mode, method, seed, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+            (id, user_id, question, mode, method, seed, lang, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
         """,
-        (session_id, user_id, question, mode, method, seed, created_at),
+        (session_id, user_id, question, mode, method, seed, lang, created_at),
     )
     conn.commit()
     conn.close()
@@ -176,6 +178,7 @@ def create_divination_session_v2(
         "mode": mode,
         "method": method,
         "seed": seed,
+        "lang": lang,
         "status": "pending",
         "created_at": created_at,
     }

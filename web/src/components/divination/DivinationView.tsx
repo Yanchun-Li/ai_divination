@@ -18,6 +18,7 @@ interface DivinationViewProps {
   initialQuestion?: string;
   initialMode?: DivinationMode;
   initialMethod?: DivinationMethod;
+  lang?: string;
   onComplete?: (result: LiuyaoResult | TarotResult, interpretation: DivinationInterpretation | null) => void;
   onActiveChange?: (isActive: boolean) => void;
   onReset?: () => void;
@@ -27,6 +28,7 @@ export function DivinationView({
   initialQuestion,
   initialMode,
   initialMethod,
+  lang = "zh",
   onComplete, 
   onActiveChange,
   onReset 
@@ -58,9 +60,9 @@ export function DivinationView({
   // 当所有条件满足后自动开始占卜
   useEffect(() => {
     if (hasInitialized.current && initialQuestion && canStart && state.stage !== "in_progress" && state.stage !== "generating" && state.stage !== "interpreting" && state.stage !== "completed" && !state.sessionId) {
-      startDivination();
+      startDivination(lang);
     }
-  }, [canStart, initialQuestion, state.stage, state.sessionId, startDivination]);
+  }, [canStart, initialQuestion, state.stage, state.sessionId, startDivination, lang]);
 
   // 通知父组件交互状态变化
   useEffect(() => {
@@ -147,7 +149,7 @@ export function DivinationView({
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   if (canStart && !state.isLoading) {
-                    startDivination();
+                    startDivination(lang);
                   }
                 }
               }}
@@ -204,7 +206,7 @@ export function DivinationView({
           {/* 开始按钮 */}
           <button
             className="start-button"
-            onClick={startDivination}
+            onClick={() => startDivination(lang)}
             disabled={!canStart || state.isLoading}
           >
             {state.isLoading ? "准备中..." : getStartButtonText(state.mode, state.method)}

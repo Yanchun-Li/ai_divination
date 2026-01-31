@@ -126,6 +126,7 @@ export interface CreateSessionRequest {
   mode: DivinationMode;
   method: DivinationMethod;
   user_seed?: string;
+  lang?: string; // "zh" | "ja" | "en"
 }
 
 export interface CreateSessionResponse {

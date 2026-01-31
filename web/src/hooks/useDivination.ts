@@ -27,7 +27,7 @@ interface UseDivinationReturn {
   setQuestion: (question: string) => void;
   setMode: (mode: DivinationMode) => void;
   setMethod: (method: DivinationMethod) => void;
-  startDivination: () => Promise<void>;
+  startDivination: (lang?: string) => Promise<void>;
   submitStep: (stepData: CoinToss | TarotDrawStep) => Promise<void>;
   requestInterpretation: (explicitSessionId?: string) => Promise<void>;
   reset: () => void;
@@ -92,7 +92,7 @@ export function useDivination(): UseDivinationReturn {
   }, []);
 
   // 开始占卜
-  const startDivination = useCallback(async () => {
+  const startDivination = useCallback(async (lang?: string) => {
     if (!canStart) {
       throw new Error("Cannot start: missing question, mode, or method");
     }
@@ -105,6 +105,7 @@ export function useDivination(): UseDivinationReturn {
         question: state.question,
         mode: state.mode!,
         method: state.method!,
+        lang: lang || "zh",
       });
 
       setState((prev) => ({

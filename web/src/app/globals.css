@@ -358,15 +358,27 @@ header h1 {
   gap: 10px;
   padding: 10px 14px;
   border-radius: 20px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--accent);
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 
 .input-bar:focus-within {
   border-color: var(--accent);
   background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 20px var(--accent-glow);
+  box-shadow: 0 0 25px var(--accent-glow);
+}
+
+/* 亮色模式下边框不那么强烈 */
+[data-theme="light"] .input-bar {
+  border-color: var(--glass-border);
+  box-shadow: none;
+}
+
+[data-theme="light"] .input-bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
 }
 
 .input-textarea {
@@ -385,8 +397,14 @@ header h1 {
 }
 
 .input-textarea::placeholder {
+  color: var(--accent);
+  opacity: 0.6;
+}
+
+/* 亮色模式 placeholder 颜色 */
+[data-theme="light"] .input-textarea::placeholder {
   color: var(--text-main);
-  opacity: 0.25;
+  opacity: 0.4;
 }
 
 .input-actions {

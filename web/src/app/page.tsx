@@ -530,6 +530,7 @@ export default function Home() {
                 initialQuestion={question}
                 initialMode={mode}
                 initialMethod={method}
+                lang={lang}
                 onActiveChange={setIsDivinationActive}
                 onComplete={handleDivinationComplete}
                 onReset={handleReset}

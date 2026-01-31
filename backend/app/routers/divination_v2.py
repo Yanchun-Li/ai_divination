@@ -68,6 +68,7 @@ async def create_session(request: Request, payload: CreateSessionRequest):
         mode=payload.mode.value,
         method=payload.method.value,
         seed=seed,
+        lang=payload.lang,
     )
 
     return CreateSessionResponse(
@@ -111,6 +112,7 @@ async def generate_divination(payload: GenerateRequest):
             method=session["method"],
             mode=session["mode"],
             result=result.model_dump(),
+            lang=session.get("lang", "zh"),
         )
 
         # 更新会话
@@ -297,6 +299,7 @@ async def get_interpretation(payload: InterpretRequest):
         method=session["method"],
         mode=session["mode"],
         result=result_data,
+        lang=session.get("lang", "zh"),
     )
 
     # 保存解读
