@@ -48,6 +48,22 @@ def init_db() -> None:
             created_at TEXT NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS divination_sessions_v2 (
+            id TEXT PRIMARY KEY,
+            user_id INTEGER NULL,
+            question TEXT NOT NULL,
+            mode TEXT NOT NULL,
+            method TEXT NOT NULL,
+            seed TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            result TEXT NULL,
+            interpretation TEXT NULL,
+            manual_steps TEXT NULL,
+            created_at TEXT NOT NULL,
+            completed_at TEXT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+        );
         """
     )
     conn.commit()
@@ -119,6 +135,131 @@ def get_divination_records_by_user(user_id: int, limit: int = 20) -> list[dict]:
         FROM divination_records
         WHERE user_id = ?
         ORDER BY id DESC
+        LIMIT ?
+        """,
+        (user_id, limit),
+    ).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+# ===== V2 Session Functions =====
+
+
+def create_divination_session_v2(
+    *,
+    session_id: str,
+    user_id: int | None,
+    question: str,
+    mode: str,
+    method: str,
+    seed: str,
+) -> dict:
+    """Create a new v2 divination session."""
+    created_at = datetime.utcnow().isoformat()
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO divination_sessions_v2
+            (id, user_id, question, mode, method, seed, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+        """,
+        (session_id, user_id, question, mode, method, seed, created_at),
+    )
+    conn.commit()
+    conn.close()
+    return {
+        "id": session_id,
+        "user_id": user_id,
+        "question": question,
+        "mode": mode,
+        "method": method,
+        "seed": seed,
+        "status": "pending",
+        "created_at": created_at,
+    }
+
+
+def get_divination_session_v2(session_id: str) -> dict | None:
+    """Get a v2 divination session by ID."""
+    conn = get_connection()
+    row = conn.execute(
+        """
+        SELECT id, user_id, question, mode, method, seed, status,
+               result, interpretation, manual_steps, created_at, completed_at
+        FROM divination_sessions_v2
+        WHERE id = ?
+        """,
+        (session_id,),
+    ).fetchone()
+    conn.close()
+    if row is None:
+        return None
+    result = dict(row)
+    # Parse JSON fields
+    for field in ("result", "interpretation", "manual_steps"):
+        if result[field]:
+            try:
+                result[field] = json.loads(result[field])
+            except json.JSONDecodeError:
+                pass
+    return result
+
+
+def update_divination_session_v2(
+    session_id: str,
+    *,
+    status: str | None = None,
+    result: object | None = None,
+    interpretation: object | None = None,
+    manual_steps: object | None = None,
+    completed_at: str | None = None,
+) -> bool:
+    """Update a v2 divination session."""
+    updates = []
+    values = []
+
+    if status is not None:
+        updates.append("status = ?")
+        values.append(status)
+    if result is not None:
+        updates.append("result = ?")
+        values.append(_serialize_payload(result))
+    if interpretation is not None:
+        updates.append("interpretation = ?")
+        values.append(_serialize_payload(interpretation))
+    if manual_steps is not None:
+        updates.append("manual_steps = ?")
+        values.append(_serialize_payload(manual_steps))
+    if completed_at is not None:
+        updates.append("completed_at = ?")
+        values.append(completed_at)
+
+    if not updates:
+        return False
+
+    values.append(session_id)
+    sql = f"UPDATE divination_sessions_v2 SET {', '.join(updates)} WHERE id = ?"
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(sql, values)
+    conn.commit()
+    affected = cursor.rowcount
+    conn.close()
+    return affected > 0
+
+
+def get_divination_sessions_by_user_v2(user_id: int, limit: int = 20) -> list[dict]:
+    """Get v2 divination sessions for a user."""
+    conn = get_connection()
+    rows = conn.execute(
+        """
+        SELECT id, question, mode, method, status, created_at, completed_at
+        FROM divination_sessions_v2
+        WHERE user_id = ?
+        ORDER BY created_at DESC
         LIMIT ?
         """,
         (user_id, limit),

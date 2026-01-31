@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .db import init_db
-from .routers import admin, auth, divination, horoscope, preload
+from .routers import admin, auth, divination, divination_v2, horoscope, preload
 
 
 def create_app() -> FastAPI:
@@ -24,6 +24,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(horoscope.router)
     app.include_router(divination.router)
+    app.include_router(divination_v2.router)
     app.include_router(preload.router)
     app.include_router(admin.router)
 

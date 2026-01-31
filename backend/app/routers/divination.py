@@ -12,7 +12,7 @@ from ..divination import choose_method, generate_interpretation, generate_result
 router = APIRouter(prefix="/api", tags=["divination"])
 logger = logging.getLogger(__name__)
 
-DivinationMethod = Literal["tarot", "roulette"]
+DivinationMethod = Literal["tarot", "liuyao"]
 DivinationMode = Literal["ai", "self"]
 
 

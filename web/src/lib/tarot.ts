@@ -1,0 +1,436 @@
+import type {
+  TarotCard,
+  TarotDraw,
+  TarotResult,
+  TarotPosition,
+} from "../types/divination";
+import { seededRandom } from "./liuyao";
+
+// ===== 22张大阿尔克那塔罗牌数据 =====
+export const MAJOR_ARCANA: TarotCard[] = [
+  {
+    id: 0,
+    name: "愚者",
+    name_en: "The Fool",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["新的开始", "自由", "冒险", "天真", "可能性"],
+    reversed_keywords: ["鲁莽", "逃避", "缺乏计划", "不成熟", "冒进"],
+  },
+  {
+    id: 1,
+    name: "魔术师",
+    name_en: "The Magician",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["行动力", "创造", "资源整合", "意志力", "主动"],
+    reversed_keywords: ["意志分散", "操控", "空想", "欺骗", "能力不足"],
+  },
+  {
+    id: 2,
+    name: "女祭司",
+    name_en: "The High Priestess",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["直觉", "潜意识", "内在智慧", "神秘", "等待"],
+    reversed_keywords: ["迟疑不决", "忽视内心", "表面", "秘密", "被动"],
+  },
+  {
+    id: 3,
+    name: "女皇",
+    name_en: "The Empress",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["丰盛", "滋养", "创造力", "自然", "母性"],
+    reversed_keywords: ["过度依赖", "创意枯竭", "停滞", "控制", "忽视自我"],
+  },
+  {
+    id: 4,
+    name: "皇帝",
+    name_en: "The Emperor",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["权威", "秩序", "稳定", "领导力", "规则"],
+    reversed_keywords: ["控制过度", "刚愎自用", "暴政", "缺乏纪律", "僵化"],
+  },
+  {
+    id: 5,
+    name: "教皇",
+    name_en: "The Hierophant",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["传统", "指导", "精神信仰", "教育", "智慧"],
+    reversed_keywords: ["打破常规", "个人信念", "反叛", "挑战权威", "自由"],
+  },
+  {
+    id: 6,
+    name: "恋人",
+    name_en: "The Lovers",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["爱情", "选择", "和谐", "价值观", "关系"],
+    reversed_keywords: ["摇摆不定", "关系失衡", "错误选择", "分离", "内心冲突"],
+  },
+  {
+    id: 7,
+    name: "战车",
+    name_en: "The Chariot",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["胜利", "决心", "掌控", "前进", "克服障碍"],
+    reversed_keywords: ["失控", "缺乏方向", "攻击性", "受阻", "自大"],
+  },
+  {
+    id: 8,
+    name: "力量",
+    name_en: "Strength",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["勇气", "耐心", "内在力量", "柔和", "自律"],
+    reversed_keywords: ["自我怀疑", "软弱", "失去信心", "粗暴", "控制不住"],
+  },
+  {
+    id: 9,
+    name: "隐者",
+    name_en: "The Hermit",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["内省", "独处", "指引", "智慧", "寻找真理"],
+    reversed_keywords: ["孤立", "逃避", "偏执", "过度退缩", "拒绝帮助"],
+  },
+  {
+    id: 10,
+    name: "命运之轮",
+    name_en: "Wheel of Fortune",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["转机", "好运", "命运", "周期", "变化"],
+    reversed_keywords: ["厄运", "抗拒改变", "失控", "停滞", "坏运气"],
+  },
+  {
+    id: 11,
+    name: "正义",
+    name_en: "Justice",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["公平", "真相", "因果", "平衡", "责任"],
+    reversed_keywords: ["不公正", "逃避责任", "偏见", "欺骗", "失衡"],
+  },
+  {
+    id: 12,
+    name: "倒吊人",
+    name_en: "The Hanged Man",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["牺牲", "等待", "换位思考", "放下", "新视角"],
+    reversed_keywords: ["拖延", "抗拒", "无意义的牺牲", "自私", "僵持"],
+  },
+  {
+    id: 13,
+    name: "死神",
+    name_en: "Death",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["结束", "转变", "放下过去", "重生", "新开始"],
+    reversed_keywords: ["抗拒改变", "停滞", "无法放下", "恐惧", "拖延结束"],
+  },
+  {
+    id: 14,
+    name: "节制",
+    name_en: "Temperance",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["平衡", "耐心", "调和", "适度", "目标"],
+    reversed_keywords: ["失衡", "过度", "缺乏耐心", "极端", "冲突"],
+  },
+  {
+    id: 15,
+    name: "恶魔",
+    name_en: "The Devil",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["束缚", "诱惑", "物质", "阴影面", "执念"],
+    reversed_keywords: ["解脱", "打破束缚", "觉醒", "恢复自由", "放下"],
+  },
+  {
+    id: 16,
+    name: "塔",
+    name_en: "The Tower",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["突变", "崩塌", "觉醒", "真相揭露", "解放"],
+    reversed_keywords: ["灾难延迟", "抗拒改变", "恐惧", "避免最坏", "内在转变"],
+  },
+  {
+    id: 17,
+    name: "星星",
+    name_en: "The Star",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["希望", "信念", "平静", "灵感", "疗愈"],
+    reversed_keywords: ["失望", "缺乏信心", "悲观", "脱离现实", "空虚"],
+  },
+  {
+    id: 18,
+    name: "月亮",
+    name_en: "The Moon",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["直觉", "幻象", "不确定", "潜意识", "恐惧"],
+    reversed_keywords: ["混乱", "欺骗揭露", "焦虑释放", "清晰", "面对恐惧"],
+  },
+  {
+    id: 19,
+    name: "太阳",
+    name_en: "The Sun",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["成功", "快乐", "活力", "清晰", "积极"],
+    reversed_keywords: ["短暂低迷", "缺乏热情", "延迟成功", "自负", "倦怠"],
+  },
+  {
+    id: 20,
+    name: "审判",
+    name_en: "Judgement",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["觉醒", "重生", "反思", "召唤", "决断"],
+    reversed_keywords: ["自我怀疑", "拒绝改变", "无法原谅", "逃避", "错失机会"],
+  },
+  {
+    id: 21,
+    name: "世界",
+    name_en: "The World",
+    arcana: "major",
+    suit: null,
+    upright_keywords: ["完成", "整合", "成就", "圆满", "新旅程"],
+    reversed_keywords: ["未完成", "停滞", "缺乏闭环", "延迟", "不圆满"],
+  },
+];
+
+// ===== 牌阵位置定义 =====
+export const SPREAD_POSITIONS: {
+  id: TarotPosition;
+  label: string;
+  meaning: string;
+}[] = [
+  {
+    id: "past",
+    label: "过去",
+    meaning: "影响当前问题的背景和根源",
+  },
+  {
+    id: "present",
+    label: "现在",
+    meaning: "当前状态和面临的核心议题",
+  },
+  {
+    id: "future",
+    label: "未来",
+    meaning: "如果保持现状，可能的发展方向",
+  },
+];
+
+// ===== 核心函数 =====
+
+/**
+ * 根据ID获取塔罗牌
+ */
+export function getCardById(id: number): TarotCard | null {
+  return MAJOR_ARCANA.find((card) => card.id === id) || null;
+}
+
+/**
+ * 获取牌的关键词（根据正逆位）
+ */
+export function getCardKeywords(card: TarotCard, isUpright: boolean): string[] {
+  return isUpright ? card.upright_keywords : card.reversed_keywords;
+}
+
+/**
+ * 获取牌的含义文本
+ */
+export function getCardMeaning(card: TarotCard, isUpright: boolean): string {
+  const keywords = getCardKeywords(card, isUpright);
+  return keywords.join("、");
+}
+
+/**
+ * 获取牌的方向文本
+ */
+export function getOrientationText(isUpright: boolean): string {
+  return isUpright ? "正位" : "逆位";
+}
+
+/**
+ * Fisher-Yates 洗牌算法
+ */
+export function shuffle<T>(array: T[], rng: () => number): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * 随机抽取塔罗牌（不使用seed）
+ */
+export function drawRandomCards(count: number): TarotDraw[] {
+  const rng = () => Math.random();
+  const shuffled = shuffle(
+    MAJOR_ARCANA.map((c) => c.id),
+    rng
+  );
+
+  return shuffled.slice(0, count).map((cardId, index) => {
+    const card = getCardById(cardId)!;
+    const position = SPREAD_POSITIONS[index];
+    const isUpright = rng() > 0.5;
+
+    return {
+      card,
+      position: position.id,
+      position_label: position.label,
+      is_upright: isUpright,
+      meaning: getCardMeaning(card, isUpright),
+    };
+  });
+}
+
+/**
+ * AI模式：使用seed抽取塔罗牌
+ */
+export function aiDrawTarot(seed: string): TarotDraw[] {
+  const rng = seededRandom(seed);
+  const shuffled = shuffle(
+    MAJOR_ARCANA.map((c) => c.id),
+    rng
+  );
+
+  return SPREAD_POSITIONS.map((position, index) => {
+    const card = getCardById(shuffled[index])!;
+    const isUpright = rng() > 0.5;
+
+    return {
+      card,
+      position: position.id,
+      position_label: position.label,
+      is_upright: isUpright,
+      meaning: getCardMeaning(card, isUpright),
+    };
+  });
+}
+
+/**
+ * 生成完整的塔罗结果
+ */
+export function generateTarotResult(draws: TarotDraw[]): TarotResult {
+  return {
+    type: "tarot",
+    spread_type: "three_card",
+    spread_name: "过去-现在-未来",
+    cards: draws,
+    deck_version: "major_22",
+    draw_sequence: draws.map((d) => d.card.id),
+  };
+}
+
+/**
+ * AI模式生成完整塔罗结果
+ */
+export function aiGenerateTarot(seed: string): TarotResult {
+  const draws = aiDrawTarot(seed);
+  return generateTarotResult(draws);
+}
+
+/**
+ * 手动模式：创建单张抽牌结果
+ */
+export function createManualDraw(
+  cardId: number,
+  positionIndex: number,
+  isUpright: boolean
+): TarotDraw {
+  const card = getCardById(cardId);
+  if (!card) {
+    throw new Error(`Invalid card id: ${cardId}`);
+  }
+
+  const position = SPREAD_POSITIONS[positionIndex];
+  if (!position) {
+    throw new Error(`Invalid position index: ${positionIndex}`);
+  }
+
+  return {
+    card,
+    position: position.id,
+    position_label: position.label,
+    is_upright: isUpright,
+    meaning: getCardMeaning(card, isUpright),
+  };
+}
+
+/**
+ * 获取剩余可抽的牌ID
+ */
+export function getAvailableCards(drawnIds: number[]): number[] {
+  const drawnSet = new Set(drawnIds);
+  return MAJOR_ARCANA.filter((card) => !drawnSet.has(card.id)).map(
+    (card) => card.id
+  );
+}
+
+/**
+ * 随机决定正逆位
+ */
+export function randomOrientation(): boolean {
+  return Math.random() > 0.5;
+}
+
+// ===== 辅助函数 =====
+
+/**
+ * 格式化牌的完整描述
+ */
+export function formatCardDescription(draw: TarotDraw): string {
+  const orientation = getOrientationText(draw.is_upright);
+  return `${draw.card.name}（${orientation}）`;
+}
+
+/**
+ * 格式化牌阵描述
+ */
+export function formatSpreadDescription(draws: TarotDraw[]): string {
+  return draws
+    .map((d) => `${d.position_label}：${formatCardDescription(d)}`)
+    .join(" | ");
+}
+
+/**
+ * 获取位置的引导文案
+ */
+export function getPositionPrompt(positionIndex: number): string {
+  const prompts = [
+    "请选择代表【过去】的牌，它将揭示影响当前问题的背景。",
+    "请选择代表【现在】的牌，它将展示你当前面临的核心议题。",
+    "请选择代表【未来】的牌，它将预示可能的发展方向。",
+  ];
+  return prompts[positionIndex] || "";
+}
+
+/**
+ * 获取翻牌后的提示文案
+ */
+export function getRevealMessage(draw: TarotDraw): string {
+  const orientation = getOrientationText(draw.is_upright);
+  return `${draw.card.name}（${orientation}）- ${draw.meaning}`;
+}
+
+/**
+ * 获取完成抽牌的提示文案
+ */
+export function getCompletionMessage(): string {
+  return "三张牌已揭示，正在为你解读牌阵的含义...";
+}

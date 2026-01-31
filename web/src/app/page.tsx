@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { translations, type Language } from "./translations";
+import { LiuyaoManual } from "../components/divination/liuyao/LiuyaoManual";
+import { TarotManual } from "../components/divination/tarot/TarotManual";
+import { DivinationView } from "../components/divination/DivinationView";
+import type { LiuyaoResult, TarotResult, CoinToss, TarotDrawStep, DivinationInterpretation } from "../types/divination";
 
 type Theme = "light" | "dark";
 type View = "daily" | "divination";
 type DivinationMode = "ai" | "self";
-type DivinationMethod = "tarot" | "roulette";
+type DivinationMethod = "tarot" | "liuyao";
 type HoroscopeSign =
   | "aries"
   | "taurus"
@@ -129,6 +133,8 @@ export default function Home() {
   const [divinationMethod, setDivinationMethod] = useState<DivinationMethod>("tarot");
   const [isDivinationLoading, setIsDivinationLoading] = useState(false);
   const [divinationError, setDivinationError] = useState<string | null>(null);
+  // 移除旧的手动占卜状态，由 DivinationView 处理
+  const [isManualDivination, setIsManualDivination] = useState(false);
   const [birthDate, setBirthDate] = useState("");
   const [sign, setSign] = useState<HoroscopeSign>("aries");
   const [horoscope, setHoroscope] = useState<HoroscopeResponse | null>(null);
@@ -243,14 +249,14 @@ export default function Home() {
     modeSelf: lang === "en" ? "Self Reading" : lang === "ja" ? "自分で占う" : "自己占卜",
     methodLabel: lang === "en" ? "Method" : lang === "ja" ? "方式" : "占卜方式",
     methodTarot: lang === "en" ? "Tarot" : lang === "ja" ? "タロット" : "塔罗牌",
-    methodRoulette: lang === "en" ? "Roulette" : lang === "ja" ? "ルーレット" : "轮盘",
+    methodLiuyao: lang === "en" ? "Liu Yao" : lang === "ja" ? "六爻" : "六爻",
     startError: lang === "en" ? "Failed to read. Please try again." : lang === "ja" ? "占いに失敗しました。" : "占卜失败，请稍后再试。",
     sending: lang === "en" ? "Reading..." : lang === "ja" ? "占い中..." : "占卜中...",
     resultTitle: lang === "en" ? "Result" : lang === "ja" ? "結果" : "占卜结果",
     selectionHint: lang === "en" ? "AI choice:" : lang === "ja" ? "AIの判断：" : "AI判断：",
   };
   const methodLabel = (method: DivinationMethod | undefined) => {
-    if (method === "roulette") return uiText.methodRoulette;
+    if (method === "liuyao") return uiText.methodLiuyao;
     return uiText.methodTarot;
   };
   const formatValue = (value?: string) => {
@@ -427,7 +433,7 @@ export default function Home() {
   };
 
   const handleIntroStart = () => {
-    void sendDivination(ritualQuestion);
+    // 已经由 DivinationView 处理
   };
 
   const handleChatSend = () => {
@@ -606,70 +612,48 @@ export default function Home() {
           <section className="view-divination animate-fade-in">
             <div className="chat-container">
               {!isRitualStarted ? (
-                <div className="ritual-intro">
-                  <div className="intro-content">
-                    <h3>{t.ritualIntroTitle}</h3>
-                    <p style={{ marginBottom: "40px", opacity: 0.8 }}>{t.ritualIntroDesc}</p>
-                    <div className="divination-controls">
-                      <div className="control-row">
-                        <span className="control-label">{uiText.modeLabel}</span>
-                        <div className="control-buttons">
-                          <button
-                            className={`control-button ${divinationMode === "ai" ? "active" : ""}`}
-                            onClick={() => setDivinationMode("ai")}
-                            type="button"
-                          >
-                            {uiText.modeAi}
-                          </button>
-                          <button
-                            className={`control-button ${divinationMode === "self" ? "active" : ""}`}
-                            onClick={() => setDivinationMode("self")}
-                            type="button"
-                          >
-                            {uiText.modeSelf}
-                          </button>
-                        </div>
-                      </div>
-                      {divinationMode === "self" && (
-                        <div className="control-row">
-                          <span className="control-label">{uiText.methodLabel}</span>
-                          <div className="control-buttons">
-                            <button
-                              className={`control-button ${divinationMethod === "tarot" ? "active" : ""}`}
-                              onClick={() => setDivinationMethod("tarot")}
-                              type="button"
-                            >
-                              {uiText.methodTarot}
-                            </button>
-                            <button
-                              className={`control-button ${divinationMethod === "roulette" ? "active" : ""}`}
-                              onClick={() => setDivinationMethod("roulette")}
-                              type="button"
-                            >
-                              {uiText.methodRoulette}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="input-group">
-                      <textarea
-                        placeholder={t.placeholderProblem}
-                        className="ritual-textarea"
-                        value={ritualQuestion}
-                        onChange={(event) => setRitualQuestion(event.target.value)}
-                      />
-                      <button
-                        className="btn-primary"
-                        onClick={handleIntroStart}
-                        style={{ marginTop: "32px" }}
-                        disabled={isDivinationLoading}
-                      >
-                        {t.startBtn}
-                      </button>
-                      {divinationError && <div className="divination-status error">{divinationError}</div>}
-                    </div>
+                <DivinationView 
+                  onComplete={(result, interpretation) => {
+                    // 处理完成后的逻辑
+                    appendMessage({
+                      id: createMessageId(),
+                      role: "ai",
+                      content: interpretation?.summary || "占卜完成",
+                      method: divinationMethod,
+                      result: result as any,
+                      explanation: interpretation as any,
+                    });
+                    // 切换到聊天视图显示结果
+                    setIsRitualStarted(true);
+                  }}
+                />
+              ) : isManualDivination ? (
+                /* 手动占卜界面 - 已经由 DivinationView 处理，这里可以保留作为兼容或移除 */
+                <div className="manual-divination-session">
+                  <div className="manual-header">
+                    <button 
+                      className="back-button"
+                      onClick={() => {
+                        setIsManualDivination(false);
+                        setIsRitualStarted(false);
+                      }}
+                    >
+                      ← 返回
+                    </button>
                   </div>
+                  <DivinationView 
+                    onComplete={(result, interpretation) => {
+                      appendMessage({
+                        id: createMessageId(),
+                        role: "ai",
+                        content: interpretation?.summary || "占卜完成",
+                        method: divinationMethod,
+                        result: result as any,
+                        explanation: interpretation as any,
+                      });
+                      setIsManualDivination(false);
+                    }}
+                  />
                 </div>
               ) : (
                 <div className="chat-session">
@@ -710,11 +694,11 @@ export default function Home() {
                             {uiText.methodTarot}
                           </button>
                           <button
-                            className={`control-button ${divinationMethod === "roulette" ? "active" : ""}`}
-                            onClick={() => setDivinationMethod("roulette")}
+                            className={`control-button ${divinationMethod === "liuyao" ? "active" : ""}`}
+                            onClick={() => setDivinationMethod("liuyao")}
                             type="button"
                           >
-                            {uiText.methodRoulette}
+                            {uiText.methodLiuyao}
                           </button>
                         </div>
                       </div>

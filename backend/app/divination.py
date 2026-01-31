@@ -8,7 +8,7 @@ import httpx
 
 from .config import settings
 
-DIVINATION_METHODS = ("tarot", "roulette")
+DIVINATION_METHODS = ("tarot", "liuyao")
 
 TAROT_CARDS = [
     {
@@ -88,16 +88,8 @@ TAROT_CARDS = [
     },
 ]
 
-ROULETTE_SLOTS = [
-    {"label": "顺其自然", "meaning": "现在不必强求，顺势观察更好。"},
-    {"label": "可以尝试", "meaning": "机会值得一试，但保持弹性。"},
-    {"label": "暂缓决定", "meaning": "先收集更多信息，再做选择。"},
-    {"label": "聚焦一个方向", "meaning": "把精力集中在最在意的那一点。"},
-    {"label": "需要沟通", "meaning": "把你的真实需求说清楚。"},
-    {"label": "优先自我", "meaning": "先照顾好自己的状态。"},
-    {"label": "小心冲动", "meaning": "欲速则不达，放慢节奏。"},
-    {"label": "大胆前进", "meaning": "如果你准备好了，就行动。"},
-]
+# 六爻相关导入
+from .liuyao import ai_generate_liuyao, get_changing_lines_description
 
 
 def _seeded_index(seed: str | None, count: int) -> int:
@@ -133,14 +125,32 @@ def draw_tarot(question: str, user_seed: str | None) -> dict[str, Any]:
     }
 
 
-def spin_roulette(question: str, user_seed: str | None) -> dict[str, Any]:
-    seed = _build_seed(question, user_seed, "roulette")
-    slot_index = _seeded_index(seed, len(ROULETTE_SLOTS))
-    slot = ROULETTE_SLOTS[slot_index]
+def draw_liuyao(question: str, user_seed: str | None) -> dict[str, Any]:
+    """使用六爻铜钱法进行占卜。"""
+    seed = _build_seed(question, user_seed, "liuyao")
+    if not seed:
+        # 如果没有seed，生成一个随机的
+        import secrets
+        seed = f"{question}|{secrets.token_hex(8)}|liuyao"
+    
+    result = ai_generate_liuyao(seed)
+    
+    # 简化结果用于旧API兼容
+    primary = result.primary_hexagram
+    relating = result.relating_hexagram
+    changing_desc = get_changing_lines_description(result.changing_lines)
+    
+    hexagram_display = f"{primary.name}（{primary.symbol}）"
+    if relating:
+        hexagram_display += f" → {relating.name}（{relating.symbol}）"
+    
     return {
-        "type": "roulette",
-        "label": slot["label"],
-        "meaning": slot["meaning"],
+        "type": "liuyao",
+        "card": primary.name,  # 兼容旧格式：卦名
+        "orientation": changing_desc,  # 兼容旧格式：动爻信息
+        "keywords": primary.description,  # 兼容旧格式：卦辞
+        "label": hexagram_display,  # 完整展示
+        "meaning": f"{primary.description}。{f'变卦{relating.name}：{relating.description}' if relating else '六爻静卦，宜守不宜动。'}",
     }
 
 
@@ -182,16 +192,18 @@ def _safe_parse_json(content: str) -> dict[str, Any]:
 
 
 def _fallback_method(question: str) -> str:
-    if re.search(r"[吗么]|是否|要不要|行不行|可以不可以|好不好|\\?$", question.strip()):
-        return "roulette"
+    # 六爻适合重大决策、是非判断类问题
+    if re.search(r"[吗么]|是否|要不要|行不行|可以不可以|好不好|应该|该不该|能不能|\\?$", question.strip()):
+        return "liuyao"
     return "tarot"
 
 
 async def choose_method(question: str) -> dict[str, str]:
     prompt = (
         "你是占卜方式选择器。根据用户问题选择最合适的占卜方式。\n"
-        "可选方式: tarot, roulette。\n"
-        "tarot 适合开放式问题; roulette 适合是/否或立即行动判断。\n"
+        "可选方式: tarot, liuyao。\n"
+        "tarot（塔罗牌）适合情感、关系、方向性等开放式问题；\n"
+        "liuyao（六爻）适合是非判断、重大决策、事业选择等具体问题。\n"
         "只返回 JSON，例如: {\"method\": \"tarot\", \"reason\": \"...\"}"
     )
     try:
@@ -216,8 +228,8 @@ async def choose_method(question: str) -> dict[str, str]:
 def generate_result(method: str, question: str, user_seed: str | None) -> dict[str, Any]:
     if method == "tarot":
         return draw_tarot(question, user_seed)
-    if method == "roulette":
-        return spin_roulette(question, user_seed)
+    if method == "liuyao":
+        return draw_liuyao(question, user_seed)
     raise ValueError("Invalid method")
 
 
