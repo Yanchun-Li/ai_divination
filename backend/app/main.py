@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
@@ -43,7 +44,23 @@ def create_app() -> FastAPI:
     # 部署时：Docker 会把 Next.js 静态产物放到 app/static，挂载到 / 供前端访问
     static_dir = Path(__file__).resolve().parent / "static"
     if static_dir.exists():
-        app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+        # 挂载静态资源到 /_next 路径（Next.js 的静态资源）
+        next_static = static_dir / "_next"
+        if next_static.exists():
+            app.mount("/_next", StaticFiles(directory=str(next_static)), name="next_static")
+
+        # 处理 SPA 路由：返回 index.html 给非 API 请求
+        @app.get("/{full_path:path}")
+        async def serve_spa(request: Request, full_path: str) -> Response:
+            # 尝试返回静态文件
+            file_path = static_dir / full_path
+            if file_path.is_file():
+                return FileResponse(file_path)
+            # 否则返回 index.html（SPA fallback）
+            index_path = static_dir / "index.html"
+            if index_path.exists():
+                return FileResponse(index_path)
+            return Response(content="Not Found", status_code=404)
 
     return app
 
