@@ -392,6 +392,18 @@ export default function Home() {
 
               {/* ChatGPT-style Input Bar */}
               <section className="input-bar-section">
+                {/* Example Questions */}
+                <div className="example-questions">
+                  {(t.exampleQuestions as string[] | undefined)?.map((q, i) => (
+                    <button
+                      key={i}
+                      className="example-chip"
+                      onClick={() => setQuestion(q)}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
                 <div className="input-bar glass">
                   <textarea
                     className="input-textarea"

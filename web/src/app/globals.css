@@ -314,6 +314,44 @@ header h1 {
   margin-bottom: 24px;
 }
 
+/* Example Question Chips */
+.example-questions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.example-chip {
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  opacity: 0.7;
+}
+
+.example-chip:hover {
+  opacity: 1;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+[data-theme="light"] .example-chip {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .example-chip:hover {
+  background: var(--accent-soft);
+}
+
 .input-bar {
   display: flex;
   align-items: center;
