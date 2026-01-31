@@ -11,7 +11,7 @@ class Settings(BaseModel):
     ai_builder_api_url: str = os.getenv(
         "AI_BUILDER_API_URL", "https://space.ai-builders.com/backend/v1/chat/completions"
     )
-    ai_builder_api_key: str | None = os.getenv("AI_BUILDER_API_KEY")
+    ai_builder_api_key: str | None = os.getenv("AI_BUILDER_TOKEN") or os.getenv("AI_BUILDER_API_KEY")
     ai_builder_model: str = os.getenv("AI_BUILDER_MODEL", "grok-4-fast")
     preload_secret: str | None = os.getenv("PRELOAD_SECRET")
     allow_debug_users: bool = os.getenv("ALLOW_DEBUG_USERS", "false").lower() == "true"
