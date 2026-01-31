@@ -5,7 +5,7 @@ import type { CoinToss as CoinTossType } from "../../../types/divination";
 import { getCoinResultText, getYaoName } from "../../../lib/liuyao";
 
 interface CoinTossProps {
-  onToss: () => Promise<CoinTossType>;
+  onToss: () => Promise<CoinTossType | undefined>;
   disabled?: boolean;
   isAnimating?: boolean;
 }
@@ -19,8 +19,10 @@ export function CoinToss({ onToss, disabled, isAnimating }: CoinTossProps) {
 
     setShowResult(false);
     const result = await onToss();
-    setLastResult(result);
-    setShowResult(true);
+    if (result) {
+      setLastResult(result);
+      setShowResult(true);
+    }
   };
 
   return (
