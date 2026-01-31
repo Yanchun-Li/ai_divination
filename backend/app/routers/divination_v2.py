@@ -217,9 +217,14 @@ async def submit_manual_step(payload: ManualStepRequest):
 @router.post("/interpret", response_model=InterpretResponse)
 async def get_interpretation(payload: InterpretRequest):
     """获取LLM解读。"""
+    print(f"[INTERPRET] Received request for session: {payload.session_id}")
+    
     session = get_divination_session_v2(payload.session_id)
     if not session:
+        print(f"[INTERPRET] ERROR: Session not found: {payload.session_id}")
         raise HTTPException(status_code=404, detail="Session not found")
+    
+    print(f"[INTERPRET] Session found: mode={session['mode']}, method={session['method']}")
 
     # 检查是否已经有结果
     if session.get("interpretation"):

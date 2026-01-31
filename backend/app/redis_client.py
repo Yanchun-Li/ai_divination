@@ -16,7 +16,12 @@ def get_redis() -> Redis | None:
 
     if _redis_client is None:
         try:
-            _redis_client = Redis.from_url(settings.redis_url, decode_responses=True)
+            _redis_client = Redis.from_url(
+                settings.redis_url,
+                decode_responses=True,
+                socket_connect_timeout=2,  # Fast timeout
+                socket_timeout=2,
+            )
             # Test connection
             _redis_client.ping()
             _redis_available = True
@@ -30,5 +35,7 @@ def get_redis() -> Redis | None:
 
 def is_redis_available() -> bool:
     """Check if Redis is available."""
-    get_redis()  # This will set _redis_available
+    global _redis_available
+    if _redis_available is None:
+        get_redis()  # This will set _redis_available
     return _redis_available or False

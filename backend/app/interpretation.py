@@ -166,8 +166,14 @@ async def _call_llm(
     temperature: float = 0.5,
 ) -> str:
     """调用LLM API。"""
+    print("[LLM] Starting LLM call...")
+    
     if not settings.ai_builder_api_key:
+        print("[LLM] ERROR: API key not configured!")
         raise RuntimeError("AI Builder API key not configured")
+
+    print(f"[LLM] Using model: {settings.ai_builder_model}")
+    print(f"[LLM] API URL: {settings.ai_builder_api_url}")
 
     payload = {
         "model": settings.ai_builder_model,
@@ -178,23 +184,35 @@ async def _call_llm(
         "temperature": temperature,
     }
 
-    async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.post(
-            settings.ai_builder_api_url,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {settings.ai_builder_api_key}",
-            },
-            json=payload,
-        )
+    try:
+        print("[LLM] Sending request to AI Builder API...")
+        async with httpx.AsyncClient(timeout=60) as client:  # Increased timeout to 60s
+            response = await client.post(
+                settings.ai_builder_api_url,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {settings.ai_builder_api_key}",
+                },
+                json=payload,
+            )
+        print(f"[LLM] Response status: {response.status_code}")
+    except httpx.TimeoutException:
+        print("[LLM] ERROR: Request timed out after 60 seconds!")
+        raise RuntimeError("LLM API request timed out")
+    except Exception as e:
+        print(f"[LLM] ERROR: Request failed: {e}")
+        raise
 
     if response.status_code >= 400:
+        print(f"[LLM] ERROR: API returned error: {response.text}")
         raise RuntimeError(
             f"LLM API error: {response.status_code} - {response.text}"
         )
 
     data = response.json()
-    return data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    print(f"[LLM] Success! Response length: {len(content)} chars")
+    return content
 
 
 def _create_fallback_interpretation(

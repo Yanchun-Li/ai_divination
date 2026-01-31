@@ -1,19 +1,71 @@
 version: "3"
 
 tasks:
-  backend:setup:
+  # === 初始化 ===
+  setup:
+    desc: "安装所有依赖"
     cmds:
-      - cd backend && uv venv
-      - cd backend && uv pip install -e .
+      - task: backend:setup
+      - task: frontend:install
 
-  backend:dev:
+  backend:setup:
+    desc: "设置后端环境"
+    dir: backend
     cmds:
-      - cd backend && uv run uvicorn app.main:app --reload --port 8000
+      - uv sync
 
   frontend:install:
+    desc: "安装前端依赖"
+    dir: web
     cmds:
-      - cd web && npm install
+      - npm install
+
+  # === 开发 ===
+  backend:dev:
+    desc: "启动后端开发服务器 (http://localhost:8000)"
+    dir: backend
+    cmds:
+      - uv run uvicorn app.main:app --reload --port 8000
 
   frontend:dev:
+    desc: "启动前端开发服务器 (http://localhost:3000)"
+    dir: web
     cmds:
-      - cd web && npm run dev
+      - npm run dev
+
+  # 简写别名
+  be:
+    desc: "启动后端 (backend:dev 的简写)"
+    cmds:
+      - task: backend:dev
+
+  fe:
+    desc: "启动前端 (frontend:dev 的简写)"
+    cmds:
+      - task: frontend:dev
+
+  # === 代码质量 ===
+  lint:
+    desc: "运行代码检查"
+    dir: backend
+    cmds:
+      - uv run ruff check .
+
+  format:
+    desc: "格式化代码"
+    dir: backend
+    cmds:
+      - uv run ruff format .
+
+  # === 测试 ===
+  test:
+    desc: "运行测试"
+    cmds:
+      - uv run pytest tests/
+
+  # === 构建 ===
+  build:
+    desc: "构建前端"
+    dir: web
+    cmds:
+      - npm run build
