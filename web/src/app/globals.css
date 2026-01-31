@@ -11,19 +11,29 @@
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
   --font-serif: 'Noto Serif SC', serif;
   --font-sans: 'Noto Sans SC', sans-serif;
+  /* Additional variables for components */
+  --ink: #f1f5f9;
+  --ink-soft: rgba(241, 245, 249, 0.7);
+  --glass: rgba(30, 30, 50, 0.6);
+  --accent-dark: #c9a84a;
 }
 
 /* Moonlight (Light Theme) */
 [data-theme="light"] {
-  --bg-gradient: radial-gradient(circle at top center, #fdfcfb 0%, #e2d1c3 100%);
-  --card-bg: rgba(255, 255, 255, 0.65);
-  --text-main: #2d2d2d;
+  --bg-gradient: radial-gradient(circle at top center, #fefefe 0%, #f5ebe0 100%);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --text-main: #1a1a1a;
   --accent: #b45309;
-  --accent-soft: rgba(180, 83, 9, 0.1);
-  --accent-glow: rgba(180, 83, 9, 0.2);
-  --sub-text: rgba(45, 45, 45, 0.65);
-  --glass-border: rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 20px 50px rgba(180, 83, 9, 0.1);
+  --accent-soft: rgba(180, 83, 9, 0.12);
+  --accent-glow: rgba(180, 83, 9, 0.25);
+  --sub-text: rgba(26, 26, 26, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 50px rgba(180, 83, 9, 0.15);
+  /* Additional variables for components */
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --glass: rgba(255, 255, 255, 0.9);
+  --accent-dark: #8b4513;
 }
 
 /* Zen Forest (Forest Theme) */
@@ -37,6 +47,11 @@
   --sub-text: rgba(236, 253, 245, 0.6);
   --glass-border: rgba(255, 255, 255, 0.08);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.4);
+  /* Additional variables for components */
+  --ink: #ecfdf5;
+  --ink-soft: rgba(236, 253, 245, 0.7);
+  --glass: rgba(6, 78, 59, 0.6);
+  --accent-dark: #d4a21a;
 }
 
 * {
@@ -240,8 +255,21 @@ header h1 {
   color: #fff;
 }
 
-[data-theme="light"] .sign-select-mini option { background: #fff; color: #333; }
-[data-theme="forest"] .sign-select-mini option { background: #064e3b; color: #fff; }
+[data-theme="light"] .sign-select-mini {
+  color: #1a1a1a;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .sign-select-mini option { 
+  background: #fff; 
+  color: #1a1a1a; 
+}
+
+[data-theme="forest"] .sign-select-mini option { 
+  background: #064e3b; 
+  color: #fff; 
+}
 
 .date-mini {
   font-size: 11px;
@@ -548,4 +576,69 @@ header h1 {
   width: 90%;
   max-width: 400px;
   padding: 32px;
+}
+
+/* Light Theme Enhancements for Better Contrast */
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .daily-mini-text {
+  color: #1a1a1a;
+  opacity: 1;
+}
+
+[data-theme="light"] .daily-mini-footer {
+  color: #4a4a4a;
+  opacity: 1;
+}
+
+[data-theme="light"] .date-mini {
+  color: #4a4a4a;
+  opacity: 0.8;
+}
+
+[data-theme="light"] .energy-quote-center {
+  color: #2d2d2d;
+  opacity: 1;
+}
+
+[data-theme="light"] .input-textarea {
+  color: #1a1a1a;
+}
+
+[data-theme="light"] .input-textarea::placeholder {
+  color: #666;
+  opacity: 0.6;
+}
+
+[data-theme="light"] .input-hint {
+  color: #4a4a4a;
+  opacity: 0.7;
+}
+
+[data-theme="light"] .lucky-item {
+  color: #2d2d2d;
+}
+
+/* Light Theme - Method Picker Modal */
+[data-theme="light"] .method-picker {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .method-option-title {
+  color: #1a1a1a;
+}
+
+[data-theme="light"] .method-option-desc {
+  color: #4a4a4a;
+}
+
+/* Light Theme - Divination View Results */
+[data-theme="light"] .divination-view {
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --glass: rgba(255, 255, 255, 0.95);
+  --accent-soft: rgba(180, 83, 9, 0.1);
 }
