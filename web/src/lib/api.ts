@@ -12,7 +12,8 @@ import type {
 } from "../types/divination";
 
 // API基础配置
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+// 同一オリジンでホストされる場合は空文字列を使用（相対URL）
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
 
 // ===== 通用请求函数 =====
 

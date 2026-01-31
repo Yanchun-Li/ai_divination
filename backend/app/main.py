@@ -17,6 +17,7 @@ def create_app() -> FastAPI:
     allowed_origins = [
         settings.frontend_origin,
         "https://ai-divination.ai-builders.space",
+        "https://softcertainty.ai-builders.space",
         "http://localhost:3000",
     ]
 
