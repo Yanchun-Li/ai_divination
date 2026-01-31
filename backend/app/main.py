@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .db import init_db
+from .redis_client import is_redis_available
 from .routers import admin, auth, divination, divination_v2, horoscope, preload
 
 
@@ -13,9 +14,16 @@ def create_app() -> FastAPI:
     init_db()
     app = FastAPI(title="AI Divination Backend", version="0.1.0")
 
+    # Allow multiple origins for CORS
+    allowed_origins = [
+        settings.frontend_origin,
+        "https://ai-divination.ai-builders.space",
+        "http://localhost:3000",
+    ]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[settings.frontend_origin],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -30,7 +38,10 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     def health():
-        return {"status": "ok"}
+        return {
+            "status": "ok",
+            "redis": is_redis_available(),
+        }
 
     # 部署时：Docker 会把 Next.js 静态产物放到 app/static，挂载到 / 供前端访问
     static_dir = Path(__file__).resolve().parent / "static"

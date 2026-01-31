@@ -35,9 +35,14 @@ async def aztro(payload: dict):
     cache_key = get_cache_key(lang, sign, target_date)
     redis = get_redis()
 
-    cached = redis.get(cache_key)
-    if cached:
-        return json.loads(cached)
+    # Try cache first if Redis is available
+    if redis:
+        try:
+            cached = redis.get(cache_key)
+            if cached:
+                return json.loads(cached)
+        except Exception:
+            pass
 
     horoscope = generate_horoscope(sign, day)
 
@@ -58,5 +63,11 @@ async def aztro(payload: dict):
         if used:
             horoscope = apply_translated_fields(horoscope, translated)
 
-    redis.set(cache_key, json.dumps(horoscope), ex=CACHE_TTL)
+    # Cache if Redis is available
+    if redis:
+        try:
+            redis.set(cache_key, json.dumps(horoscope), ex=CACHE_TTL)
+        except Exception:
+            pass
+
     return horoscope

@@ -27,6 +27,10 @@ async def preload(request: Request):
 
     target_date = get_target_date("today")
     redis = get_redis()
+
+    if not redis:
+        raise HTTPException(status_code=503, detail="Redis not available")
+
     languages = ["en", "zh", "ja"]
     results = []
 
