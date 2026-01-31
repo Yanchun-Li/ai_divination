@@ -164,17 +164,34 @@ export default function Home() {
     const fetchHoroscope = async () => {
       setIsHoroscopeLoading(true);
       setHoroscopeError(null);
+      
+      // DEBUG: 输出实际请求的 URL
+      const requestUrl = `${apiBase}/api/aztro`;
+      console.log("[HOROSCOPE DEBUG] apiBase:", apiBase);
+      console.log("[HOROSCOPE DEBUG] NEXT_PUBLIC_API_BASE:", process.env.NEXT_PUBLIC_API_BASE);
+      console.log("[HOROSCOPE DEBUG] Full request URL:", requestUrl);
+      console.log("[HOROSCOPE DEBUG] Request body:", { sign, day: "today", lang });
+      
       try {
-        const response = await fetch(`${apiBase}/api/aztro`, {
+        const response = await fetch(requestUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sign, day: "today", lang }),
         });
-        if (!response.ok) throw new Error("Horoscope request failed");
+        console.log("[HOROSCOPE DEBUG] Response status:", response.status);
+        console.log("[HOROSCOPE DEBUG] Response ok:", response.ok);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("[HOROSCOPE DEBUG] Error response:", errorText);
+          throw new Error(`Horoscope request failed: ${response.status}`);
+        }
         const data = (await response.json()) as HoroscopeResponse;
+        console.log("[HOROSCOPE DEBUG] Success! Data:", data);
         if (!isActive) return;
         setHoroscope(data);
-      } catch {
+      } catch (err) {
+        console.error("[HOROSCOPE DEBUG] Fetch error:", err);
         if (!isActive) return;
         setHoroscope(null);
         setHoroscopeError(t.horoscopeError);
