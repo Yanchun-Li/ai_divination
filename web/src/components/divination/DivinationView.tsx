@@ -318,7 +318,7 @@ export function DivinationView({
                 lines={(localResult as LiuyaoResult).lines}
                 relatingHexagram={(localResult as LiuyaoResult).relating_hexagram ?? undefined}
                 showLines={true}
-                compact={false}
+                compact={true}
               />
             )}
 
@@ -327,7 +327,7 @@ export function DivinationView({
               <SpreadDisplay
                 draws={(localResult as TarotResult).cards}
                 showAll={true}
-                compact={false}
+                compact={true}
               />
             )}
           </div>

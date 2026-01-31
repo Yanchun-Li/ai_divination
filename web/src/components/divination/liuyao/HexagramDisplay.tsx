@@ -23,8 +23,72 @@ export function HexagramDisplay({
   // 获取显示用的爻数据（优先使用lines，否则使用tosses）
   const lineData = lines || tosses;
 
+  // 紧凑模式：横向显示卦名
+  if (compact) {
+    return (
+      <div className="hexagram-display compact">
+        <div className="compact-hexagram-row">
+          <div className="compact-hexagram-item">
+            <span className="compact-symbol">{hexagram.symbol}</span>
+            <span className="compact-name">{hexagram.name}卦</span>
+          </div>
+          {relatingHexagram && (
+            <>
+              <span className="compact-arrow">→</span>
+              <div className="compact-hexagram-item">
+                <span className="compact-symbol">{relatingHexagram.symbol}</span>
+                <span className="compact-name">{relatingHexagram.name}卦</span>
+              </div>
+            </>
+          )}
+        </div>
+        <p className="compact-description">{hexagram.description}</p>
+        
+        <style jsx>{`
+          .hexagram-display.compact {
+            padding: 1rem;
+            background: var(--glass, rgba(255, 255, 255, 0.45));
+            border-radius: 12px;
+          }
+          .compact-hexagram-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+          }
+          .compact-hexagram-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+          .compact-symbol {
+            font-size: 1.5rem;
+          }
+          .compact-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--ink, #2d2926);
+            font-family: var(--font-serif, "Shippori Mincho", serif);
+          }
+          .compact-arrow {
+            font-size: 1.25rem;
+            color: var(--accent, #c49a6c);
+          }
+          .compact-description {
+            font-size: 0.85rem;
+            color: var(--ink-soft, #7a736d);
+            text-align: center;
+            margin: 0;
+            line-height: 1.4;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
-    <div className={`hexagram-display ${compact ? "compact" : ""}`}>
+    <div className="hexagram-display">
       <div className="hexagram-main">
         {/* 卦名和符号 */}
         <div className="hexagram-header">
@@ -58,7 +122,7 @@ export function HexagramDisplay({
                 line={line}
                 toss={toss}
                 position={position}
-                showDetails={!compact}
+                showDetails={true}
                 isHighlighted={isChanging}
               />
             );

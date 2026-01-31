@@ -2,8 +2,8 @@ import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "AI 占卜 - 寻觅内心的指引",
-  description: "AI占卜陪伴MVP",
+  title: "Soft Certainty",
+  description: "Soft Certainty - Your gentle guide to inner clarity",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

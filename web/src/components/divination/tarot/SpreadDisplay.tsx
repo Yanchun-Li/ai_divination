@@ -19,54 +19,79 @@ export function SpreadDisplay({
     <div className={`spread-display ${compact ? "compact" : ""}`}>
       {/* 牌阵标题 */}
       <div className="spread-header">
-        <h3 className="spread-title">三张牌阵</h3>
-        <p className="spread-subtitle">过去 - 现在 - 未来</p>
+        <h3 className="spread-title">
+          {compact ? "牌阵：" : "三张牌阵"}
+          {compact && draws.map((d, i) => (
+            <span key={d.position} className="inline-card-name">
+              {d.card.name}{d.is_upright ? "" : "(逆位)"}
+              {i < draws.length - 1 ? " → " : ""}
+            </span>
+          ))}
+        </h3>
+        {!compact && <p className="spread-subtitle">过去 - 现在 - 未来</p>}
       </div>
 
-      {/* 牌位展示 */}
-      <div className="spread-cards">
-        {SPREAD_POSITIONS.map((position, index) => {
-          const draw = draws.find((d) => d.position === position.id);
-          const hasCard = !!draw;
+      {/* 牌位展示 - 非紧凑模式 */}
+      {!compact && (
+        <div className="spread-cards">
+          {SPREAD_POSITIONS.map((position, index) => {
+            const draw = draws.find((d) => d.position === position.id);
+            const hasCard = !!draw;
 
-          return (
-            <div key={position.id} className="spread-position">
-              {/* 位置标签 */}
-              <div className="position-label">
-                <span className="label-text">{position.label}</span>
-              </div>
+            return (
+              <div key={position.id} className="spread-position">
+                {/* 位置标签 */}
+                <div className="position-label">
+                  <span className="label-text">{position.label}</span>
+                </div>
 
-              {/* 牌展示 */}
-              <div className="card-slot">
-                {hasCard ? (
-                  <CardReveal
-                    card={draw.card}
-                    isUpright={draw.is_upright}
-                    isRevealed={showAll}
-                    size={compact ? "small" : "medium"}
-                  />
-                ) : (
-                  <div className="empty-slot">
-                    <span className="slot-number">{index + 1}</span>
+                {/* 牌展示 */}
+                <div className="card-slot">
+                  {hasCard ? (
+                    <CardReveal
+                      card={draw.card}
+                      isUpright={draw.is_upright}
+                      isRevealed={showAll}
+                      size="medium"
+                    />
+                  ) : (
+                    <div className="empty-slot">
+                      <span className="slot-number">{index + 1}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 位置含义 */}
+                <p className="position-meaning">{position.meaning}</p>
+
+                {/* 牌的解读 */}
+                {hasCard && (
+                  <div className="card-meaning">
+                    <p className="meaning-text">{draw.meaning}</p>
                   </div>
                 )}
               </div>
+            );
+          })}
+        </div>
+      )}
 
-              {/* 位置含义 */}
-              {!compact && (
-                <p className="position-meaning">{position.meaning}</p>
-              )}
-
-              {/* 牌的解读 */}
-              {hasCard && !compact && (
-                <div className="card-meaning">
-                  <p className="meaning-text">{draw.meaning}</p>
-                </div>
-              )}
+      {/* 紧凑模式 - 横向卡片列表 */}
+      {compact && (
+        <div className="compact-cards-row">
+          {draws.map((draw) => (
+            <div key={draw.position} className="compact-card-item">
+              <CardReveal
+                card={draw.card}
+                isUpright={draw.is_upright}
+                isRevealed={showAll}
+                size="small"
+              />
+              <span className="compact-card-label">{draw.position_label}</span>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
 
       <style jsx>{`
         .spread-display {
@@ -76,7 +101,7 @@ export function SpreadDisplay({
         }
 
         .spread-display.compact {
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
         .spread-header {
@@ -93,16 +118,22 @@ export function SpreadDisplay({
 
         .compact .spread-title {
           font-size: 1rem;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .inline-card-name {
+          color: var(--accent, #c49a6c);
+          font-weight: 500;
         }
 
         .spread-subtitle {
           font-size: 0.9rem;
           color: var(--ink-soft, #7a736d);
           margin: 0.25rem 0 0;
-        }
-
-        .compact .spread-subtitle {
-          font-size: 0.8rem;
         }
 
         .spread-cards {
@@ -112,21 +143,12 @@ export function SpreadDisplay({
           flex-wrap: wrap;
         }
 
-        .compact .spread-cards {
-          gap: 1rem;
-        }
-
         .spread-position {
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 0.75rem;
           max-width: 150px;
-        }
-
-        .compact .spread-position {
-          gap: 0.5rem;
-          max-width: 100px;
         }
 
         .position-label {
@@ -139,19 +161,11 @@ export function SpreadDisplay({
           color: var(--accent, #c49a6c);
         }
 
-        .compact .label-text {
-          font-size: 0.85rem;
-        }
-
         .card-slot {
           min-height: 195px;
           display: flex;
           align-items: center;
           justify-content: center;
-        }
-
-        .compact .card-slot {
-          min-height: 130px;
         }
 
         .empty-slot {
@@ -165,18 +179,9 @@ export function SpreadDisplay({
           opacity: 0.3;
         }
 
-        .compact .empty-slot {
-          width: 80px;
-          height: 130px;
-        }
-
         .slot-number {
           font-size: 2rem;
           color: var(--ink-soft, #7a736d);
-        }
-
-        .compact .slot-number {
-          font-size: 1.5rem;
         }
 
         .position-meaning {
@@ -200,6 +205,28 @@ export function SpreadDisplay({
           margin: 0;
           text-align: center;
           line-height: 1.4;
+        }
+
+        /* 紧凑模式横向布局 */
+        .compact-cards-row {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          gap: 1rem;
+          flex-wrap: nowrap;
+        }
+
+        .compact-card-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .compact-card-label {
+          font-size: 0.7rem;
+          color: var(--ink-soft, #7a736d);
+          text-align: center;
         }
       `}</style>
     </div>

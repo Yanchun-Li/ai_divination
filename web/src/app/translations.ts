@@ -2,7 +2,7 @@ export type Language = "zh" | "ja" | "en";
 
 export const translations = {
   zh: {
-    appTitle: "AI 占卜",
+    appTitle: "Soft Certainty",
     dailyFortune: "今日运势",
     deepDivination: "深度占卜",
     ritualReady: "仪式准备",
@@ -89,7 +89,7 @@ export const translations = {
     },
   },
   ja: {
-    appTitle: "AI占い",
+    appTitle: "Soft Certainty",
     dailyFortune: "今日の運勢",
     deepDivination: "深く占う",
     ritualReady: "儀式準備",
@@ -176,7 +176,7 @@ export const translations = {
     },
   },
   en: {
-    appTitle: "AI Divination",
+    appTitle: "Soft Certainty",
     dailyFortune: "Daily Fortune",
     deepDivination: "Deep Reading",
     ritualReady: "Ritual Ready",

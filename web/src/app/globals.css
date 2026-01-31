@@ -39,18 +39,18 @@
 /* Zen Forest (Forest Theme) */
 [data-theme="forest"] {
   --bg-gradient: radial-gradient(circle at top center, #064e3b 0%, #022c22 100%);
-  --card-bg: rgba(255, 255, 255, 0.04);
-  --text-main: #ecfdf5;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --text-main: #f0fdf4;
   --accent: #fbbf24;
-  --accent-soft: rgba(251, 191, 36, 0.12);
-  --accent-glow: rgba(251, 191, 36, 0.3);
-  --sub-text: rgba(236, 253, 245, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --accent-soft: rgba(251, 191, 36, 0.15);
+  --accent-glow: rgba(251, 191, 36, 0.35);
+  --sub-text: rgba(240, 253, 244, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.12);
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.4);
   /* Additional variables for components */
-  --ink: #ecfdf5;
-  --ink-soft: rgba(236, 253, 245, 0.7);
-  --glass: rgba(6, 78, 59, 0.6);
+  --ink: #f0fdf4;
+  --ink-soft: rgba(240, 253, 244, 0.85);
+  --glass: rgba(255, 255, 255, 0.1);
   --accent-dark: #d4a21a;
 }
 
@@ -641,4 +641,129 @@ header h1 {
   --ink-soft: #4a4a4a;
   --glass: rgba(255, 255, 255, 0.95);
   --accent-soft: rgba(180, 83, 9, 0.1);
+}
+
+/* ============================================ */
+/* Forest Theme Enhancements for Better Contrast */
+/* ============================================ */
+
+[data-theme="forest"] .glass {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="forest"] .daily-mini-text {
+  color: #f0fdf4;
+  opacity: 1;
+}
+
+[data-theme="forest"] .daily-mini-footer {
+  color: rgba(240, 253, 244, 0.9);
+  opacity: 1;
+}
+
+[data-theme="forest"] .date-mini {
+  color: rgba(240, 253, 244, 0.8);
+  opacity: 1;
+}
+
+[data-theme="forest"] .energy-quote-center {
+  color: #f0fdf4;
+  opacity: 1;
+}
+
+[data-theme="forest"] .input-textarea {
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .input-textarea::placeholder {
+  color: rgba(240, 253, 244, 0.5);
+  opacity: 1;
+}
+
+[data-theme="forest"] .input-hint {
+  color: rgba(240, 253, 244, 0.7);
+  opacity: 1;
+}
+
+[data-theme="forest"] .lucky-item {
+  color: #f0fdf4;
+}
+
+/* Forest Theme - Method Picker Modal */
+[data-theme="forest"] .method-picker {
+  background: rgba(6, 78, 59, 0.95);
+}
+
+[data-theme="forest"] .method-option-title {
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .method-option-desc {
+  color: rgba(240, 253, 244, 0.8);
+}
+
+/* Forest Theme - Divination View Results */
+[data-theme="forest"] .divination-view {
+  --ink: #f0fdf4;
+  --ink-soft: rgba(240, 253, 244, 0.85);
+  --glass: rgba(255, 255, 255, 0.12);
+  --accent-soft: rgba(251, 191, 36, 0.15);
+}
+
+/* Forest Theme - Interpretation Card */
+[data-theme="forest"] .interpretation-card,
+[data-theme="forest"] .divination-result-card {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="forest"] .summary-box {
+  background: rgba(251, 191, 36, 0.15);
+}
+
+[data-theme="forest"] .summary-text {
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .section-title {
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .reasoning-item {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .advice-text {
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .timing-section {
+  background: rgba(251, 191, 36, 0.12);
+}
+
+[data-theme="forest"] .timing-label {
+  color: rgba(240, 253, 244, 0.8);
+}
+
+[data-theme="forest"] .timing-text {
+  color: #f0fdf4;
+}
+
+[data-theme="forest"] .followup-tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(240, 253, 244, 0.9);
+}
+
+[data-theme="forest"] .ending-text {
+  color: rgba(240, 253, 244, 0.85);
+}
+
+[data-theme="forest"] .btn-secondary {
+  color: #f0fdf4;
+  border-color: rgba(240, 253, 244, 0.4);
+}
+
+[data-theme="forest"] .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
