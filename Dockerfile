@@ -15,7 +15,7 @@ WORKDIR /app
 
 # 安装 backend 依赖（与 backend/pyproject.toml 一致，版本固定）
 RUN pip install --no-cache-dir \
-  "fastapi>=0.110" "uvicorn[standard]>=0.29" "pydantic>=2.6" \
+  "fastapi>=0.110" "uvicorn[standard]>=0.29" "pydantic[email]>=2.6" \
   "python-dotenv>=1.0" "passlib[bcrypt]>=1.7" "redis>=5.0" "httpx>=0.27"
 
 COPY backend/ ./
