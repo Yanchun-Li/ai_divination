@@ -49,14 +49,9 @@ def create_app() -> FastAPI:
         if next_static.exists():
             app.mount("/_next", StaticFiles(directory=str(next_static)), name="next_static")
 
-        # 处理 SPA 路由：返回 index.html 给非 API 请求
-        @app.get("/{full_path:path}")
-        async def serve_spa(request: Request, full_path: str) -> Response:
-            # 尝试返回静态文件
-            file_path = static_dir / full_path
-            if file_path.is_file():
-                return FileResponse(file_path)
-            # 否则返回 index.html（SPA fallback）
+        # 根路径返回 index.html
+        @app.get("/")
+        async def serve_index() -> Response:
             index_path = static_dir / "index.html"
             if index_path.exists():
                 return FileResponse(index_path)
