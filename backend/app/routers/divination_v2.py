@@ -137,6 +137,8 @@ async def generate_divination(payload: GenerateRequest):
 @router.post("/manual/step", response_model=ManualStepResponse)
 async def submit_manual_step(payload: ManualStepRequest):
     """手动模式上报步骤。"""
+    print(f"[MANUAL_STEP] Received step {payload.step_number} for session {payload.session_id}")
+    
     session = get_divination_session_v2(payload.session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -149,9 +151,23 @@ async def submit_manual_step(payload: ManualStepRequest):
     # 获取当前步骤
     manual_steps = session.get("manual_steps") or []
     current_step = len(manual_steps)
+    
+    print(f"[MANUAL_STEP] Current steps in DB: {current_step}, received step: {payload.step_number}")
 
-    # 验证步骤号
-    if payload.step_number != current_step + 1:
+    # 验证步骤号 - 允许重复提交同一步骤（幂等性）
+    if payload.step_number < current_step + 1:
+        print(f"[MANUAL_STEP] Step {payload.step_number} already exists, skipping")
+        # 返回当前状态而不是报错
+        total_steps = 6 if session["method"] == DivinationMethod.LIUYAO.value else 3
+        return ManualStepResponse(
+            session_id=session["id"],
+            current_step=current_step,
+            total_steps=total_steps,
+            is_complete=current_step >= total_steps,
+            partial_result=None,
+        )
+    elif payload.step_number > current_step + 1:
+        print(f"[MANUAL_STEP] ERROR: Expected step {current_step + 1}, got {payload.step_number}")
         raise HTTPException(
             status_code=400,
             detail=f"Expected step {current_step + 1}, got {payload.step_number}",
@@ -237,8 +253,11 @@ async def get_interpretation(payload: InterpretRequest):
     if session["mode"] == DivinationMode.MANUAL.value:
         manual_steps = session.get("manual_steps") or []
         total_steps = 6 if session["method"] == DivinationMethod.LIUYAO.value else 3
+        
+        print(f"[INTERPRET] Manual mode: {len(manual_steps)}/{total_steps} steps completed")
 
         if len(manual_steps) < total_steps:
+            print(f"[INTERPRET] ERROR: Steps not complete! Have {len(manual_steps)}, need {total_steps}")
             raise HTTPException(
                 status_code=400,
                 detail=f"Manual steps not complete: {len(manual_steps)}/{total_steps}",

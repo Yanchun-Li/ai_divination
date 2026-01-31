@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type {
   DivinationMode,
   DivinationMethod,
@@ -53,6 +53,9 @@ const INITIAL_STATE: DivinationFlowState = {
 export function useDivination(): UseDivinationReturn {
   const [state, setState] = useState<DivinationFlowState>(INITIAL_STATE);
   const [manualStepCount, setManualStepCount] = useState(0);
+  
+  // 使用 ref 来跟踪步骤计数，避免闭包问题
+  const stepCountRef = useRef(0);
 
   // 检查是否可以开始占卜
   const canStart =
@@ -131,6 +134,7 @@ export function useDivination(): UseDivinationReturn {
         // 手动模式：等待用户操作
         setState((prev) => ({ ...prev, isLoading: false }));
         setManualStepCount(0);
+        stepCountRef.current = 0;
       }
     } catch (error) {
       setState((prev) => ({
@@ -145,14 +149,26 @@ export function useDivination(): UseDivinationReturn {
   // 提交手动步骤
   const submitStep = useCallback(
     async (stepData: CoinToss | TarotDrawStep) => {
+      console.log("[submitStep] Called with:", stepData);
+      console.log("[submitStep] Current sessionId:", state.sessionId);
+      console.log("[submitStep] stepCountRef.current:", stepCountRef.current);
+      
       if (!state.sessionId) {
+        console.error("[submitStep] No session ID!");
         throw new Error("No active session");
       }
 
-      const newStepCount = manualStepCount + 1;
+      // 使用 ref 来获取最新的步骤计数，避免闭包问题
+      const currentCount = stepCountRef.current;
+      const newStepCount = currentCount + 1;
       const action =
         state.method === "liuyao" ? "coin_toss" : "card_draw";
       const totalSteps = state.method === "liuyao" ? 6 : 3;
+
+      console.log(`[submitStep] Submitting step ${newStepCount}/${totalSteps}, action: ${action}`);
+
+      // 立即更新 ref，防止并发调用
+      stepCountRef.current = newStepCount;
 
       setState((prev) => ({ ...prev, isLoading: true }));
 
@@ -164,6 +180,7 @@ export function useDivination(): UseDivinationReturn {
           data: stepData,
         });
 
+        console.log("[submitStep] Response:", response);
         setManualStepCount(newStepCount);
 
         // 保存草稿
@@ -173,16 +190,19 @@ export function useDivination(): UseDivinationReturn {
         });
 
         if (response.is_complete) {
-          // 完成所有步骤，等待解读
+          console.log("[submitStep] All steps complete!");
+          // 完成所有步骤，不自动切换到 interpreting，让用户点击按钮
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            stage: "interpreting",
           }));
         } else {
           setState((prev) => ({ ...prev, isLoading: false }));
         }
       } catch (error) {
+        console.error("[submitStep] Error:", error);
+        // 回滚 ref
+        stepCountRef.current = currentCount;
         setState((prev) => ({
           ...prev,
           error: error instanceof Error ? error.message : "Unknown error",
@@ -190,7 +210,7 @@ export function useDivination(): UseDivinationReturn {
         }));
       }
     },
-    [state.sessionId, state.method, manualStepCount]
+    [state.sessionId, state.method]
   );
 
   // 请求LLM解读
@@ -250,6 +270,7 @@ export function useDivination(): UseDivinationReturn {
     }
     setState(INITIAL_STATE);
     setManualStepCount(0);
+    stepCountRef.current = 0;
   }, [state.sessionId]);
 
   // 恢复草稿
