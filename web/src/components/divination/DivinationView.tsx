@@ -15,10 +15,22 @@ import type {
 } from "../../types/divination";
 
 interface DivinationViewProps {
+  initialQuestion?: string;
+  initialMode?: DivinationMode;
+  initialMethod?: DivinationMethod;
   onComplete?: (result: LiuyaoResult | TarotResult, interpretation: DivinationInterpretation | null) => void;
+  onActiveChange?: (isActive: boolean) => void;
+  onReset?: () => void;
 }
 
-export function DivinationView({ onComplete }: DivinationViewProps) {
+export function DivinationView({ 
+  initialQuestion,
+  initialMode,
+  initialMethod,
+  onComplete, 
+  onActiveChange,
+  onReset 
+}: DivinationViewProps) {
   const {
     state,
     setQuestion,
@@ -30,6 +42,33 @@ export function DivinationView({ onComplete }: DivinationViewProps) {
     reset,
     canStart,
   } = useDivination();
+
+  // 初始化时设置问题、模式和方法
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    if (!hasInitialized.current && initialQuestion) {
+      // 先设置所有值
+      setQuestion(initialQuestion);
+      if (initialMode) setMode(initialMode);
+      if (initialMethod) setMethod(initialMethod);
+      hasInitialized.current = true;
+    }
+  }, [initialQuestion, initialMode, initialMethod, setQuestion, setMode, setMethod]);
+
+  // 当所有条件满足后自动开始占卜
+  useEffect(() => {
+    if (hasInitialized.current && initialQuestion && canStart && state.stage !== "in_progress" && state.stage !== "generating" && state.stage !== "interpreting" && state.stage !== "completed" && !state.sessionId) {
+      startDivination();
+    }
+  }, [canStart, initialQuestion, state.stage, state.sessionId, startDivination]);
+
+  // 通知父组件交互状态变化
+  useEffect(() => {
+    const isActive = state.stage !== "idle" && state.stage !== "question_entered" && state.stage !== "mode_selected" && state.stage !== "method_selected";
+    // 或者是更宽泛的定义：只要开始了占卜会话就算 active
+    const isActuallyActive = state.sessionId !== null || state.stage === "in_progress" || state.stage === "generating" || state.stage === "interpreting" || state.stage === "completed";
+    onActiveChange?.(isActuallyActive);
+  }, [state.stage, state.sessionId, onActiveChange]);
 
   const [localResult, setLocalResult] = useState<LiuyaoResult | TarotResult | null>(null);
   
@@ -81,10 +120,13 @@ export function DivinationView({ onComplete }: DivinationViewProps) {
     await submitStep(stepData);
   };
 
+  // 判断是否由父组件控制（传入了初始问题）
+  const isControlled = !!initialQuestion;
+
   return (
     <div className="divination-view">
-      {/* 阶段1：输入问题 */}
-      {(state.stage === "idle" || state.stage === "question_entered" || state.stage === "mode_selected" || state.stage === "method_selected") && (
+      {/* 阶段1：输入问题（仅在非控制模式下显示） */}
+      {!isControlled && (state.stage === "idle" || state.stage === "question_entered" || state.stage === "mode_selected" || state.stage === "method_selected") && (
         <div className="setup-section">
           <div className="intro-header">
             <h3 className="intro-title">开启你的专属仪式</h3>
@@ -248,7 +290,7 @@ export function DivinationView({ onComplete }: DivinationViewProps) {
                   重试解读
                 </button>
               )}
-              <button className="btn-secondary" onClick={reset}>
+              <button className="btn-secondary" onClick={() => { reset(); onReset?.(); }}>
                 重新开始
               </button>
             </div>
@@ -308,7 +350,7 @@ export function DivinationView({ onComplete }: DivinationViewProps) {
 
           {/* 操作按钮 */}
           <div className="action-buttons">
-            <button className="btn-secondary" onClick={reset}>
+            <button className="btn-secondary" onClick={() => { reset(); onReset?.(); }}>
               再占一次
             </button>
           </div>
