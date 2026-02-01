@@ -308,15 +308,21 @@ def _build_tarot_prompt(
     }
     t = texts.get(lang, texts["zh"])
 
+    # 位置标签翻译
+    position_labels = [t["past"], t["present"], t["future"]]
+    
     cards_detail = []
     for i, card_draw in enumerate(cards):
         card = card_draw.get("card", {})
-        position_label = card_draw.get("position_label", "")
         is_upright = card_draw.get("is_upright", True)
         orientation = t["upright"] if is_upright else t["reversed"]
         meaning = card_draw.get("meaning", "")
+        # 根据语言选择牌名（英文和日语使用英文牌名，中文使用中文牌名）
+        card_name = card.get('name_en', card.get('name', '')) if lang in ("en", "ja") else card.get('name', '')
+        # 使用翻译后的位置标签
+        pos_label = position_labels[i] if i < len(position_labels) else card_draw.get("position_label", "")
 
-        cards_detail.append(f"""{t['position']}{i+1} - {position_label}: {card.get('name', '')} ({orientation})
+        cards_detail.append(f"""{t['position']}{i+1} - {pos_label}: {card_name} ({orientation})
   {t['keywords']}: {meaning}""")
 
     prompt = f"""【{t['user_question']}】
