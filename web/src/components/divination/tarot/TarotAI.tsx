@@ -21,6 +21,7 @@ export function TarotAI({ seed, onComplete, autoStart = true, lang = "zh" }: Tar
   const [isGenerating, setIsGenerating] = useState(false);
   const [revealedCards, setRevealedCards] = useState<number[]>([]);
   const [showAnimation, setShowAnimation] = useState(true);
+  const [isCompleting, setIsCompleting] = useState(false); // 防止闪烁
 
   useEffect(() => {
     if (autoStart && !result && !isGenerating) {
@@ -49,10 +50,9 @@ export function TarotAI({ seed, onComplete, autoStart = true, lang = "zh" }: Tar
 
     setShowAnimation(false);
 
-    // 短暂延迟后回调
-    setTimeout(() => {
-      onComplete(generatedResult);
-    }, 500);
+    // 直接调用回调，开始解读（不再显示中间的 result-container）
+    setIsCompleting(true);
+    onComplete(generatedResult);
   };
 
   const handleRegenerate = () => {
@@ -114,8 +114,8 @@ export function TarotAI({ seed, onComplete, autoStart = true, lang = "zh" }: Tar
         </div>
       )}
 
-      {/* 完成后显示牌阵 */}
-      {!showAnimation && result && (
+      {/* 完成后显示牌阵（仅当不是自动完成时） */}
+      {!showAnimation && result && !isCompleting && (
         <div className="result-container">
           <div className="result-header">
             <h3>{td.spreadComplete}</h3>

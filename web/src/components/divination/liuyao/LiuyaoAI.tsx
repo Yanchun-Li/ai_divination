@@ -20,6 +20,7 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true, lang = "zh" }: Li
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAnimation, setShowAnimation] = useState(true);
   const [animationStep, setAnimationStep] = useState(0);
+  const [isCompleting, setIsCompleting] = useState(false); // 防止闪烁
 
   useEffect(() => {
     if (autoStart && !result && !isGenerating) {
@@ -44,10 +45,9 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true, lang = "zh" }: Li
     setIsGenerating(false);
     setShowAnimation(false);
 
-    // 短暂延迟后回调
-    setTimeout(() => {
-      onComplete(generatedResult);
-    }, 100);
+    // 直接调用回调，开始解读
+    setIsCompleting(true);
+    onComplete(generatedResult);
   };
 
   const handleRegenerate = () => {
@@ -95,8 +95,8 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true, lang = "zh" }: Li
         </div>
       )}
 
-      {/* 结果展示 */}
-      {!showAnimation && result && (
+      {/* 结果展示（仅当不是自动完成时） */}
+      {!showAnimation && result && !isCompleting && (
         <div className="result-container">
           <div className="result-header">
             <h3>{td.hexagramComplete}</h3>

@@ -114,27 +114,15 @@ export function useDivination(): UseDivinationReturn {
         sessionId: response.session_id,
         seed: response.seed,
         stage: "in_progress",
+        isLoading: false,
       }));
 
-      // AI模式：直接生成结果
-      if (state.mode === "ai") {
-        setState((prev) => ({ ...prev, stage: "generating" }));
-
-        // 调用后端生成
-        const genResponse = await generateDivination({
-          session_id: response.session_id,
-        });
-
-        setState((prev) => ({
-          ...prev,
-          result: genResponse.result,
-          interpretation: genResponse.interpretation,
-          stage: "completed",
-          isLoading: false,
-        }));
-      } else {
+      // AI模式：不在这里调用 generateDivination
+      // 让 DivinationView 中的 TarotAI/LiuyaoAI 组件处理动画和结果生成
+      // 组件完成后会调用 handleResultComplete -> requestInterpretation
+      
+      if (state.mode === "manual") {
         // 手动模式：等待用户操作
-        setState((prev) => ({ ...prev, isLoading: false }));
         setManualStepCount(0);
         stepCountRef.current = 0;
       }

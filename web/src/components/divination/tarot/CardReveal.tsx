@@ -238,26 +238,34 @@ export function CardReveal({
         }
 
         .card-name {
-          font-size: 1rem;
+          font-size: 0.85rem;
           font-weight: bold;
           color: var(--ink, #2d2926);
           margin: 0;
           font-family: var(--font-serif, "Shippori Mincho", serif);
+          min-height: 2.2em;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1.1;
         }
 
         .small .card-name {
-          font-size: 0.7rem;
+          font-size: 0.6rem;
+          min-height: 1.8em;
         }
 
         .large .card-name {
-          font-size: 1.25rem;
+          font-size: 1.1rem;
+          min-height: 2.4em;
         }
 
         .card-name-en {
           display: block;
-          font-size: 0.6rem;
+          font-size: 0.55rem;
           color: var(--ink-soft, #7a736d);
           margin-top: 0.1rem;
+          min-height: 1.2em;
         }
 
         .small .card-name-en {
