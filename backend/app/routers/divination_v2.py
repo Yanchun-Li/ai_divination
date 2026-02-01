@@ -56,11 +56,15 @@ def _get_user_id_from_request(request: Request) -> int | None:
 @router.post("/session", response_model=CreateSessionResponse, status_code=201)
 async def create_session(request: Request, payload: CreateSessionRequest):
     """创建占卜会话。"""
+    print(f"[CREATE_SESSION] Received lang from payload: {payload.lang}")
+    
     user_id = _get_user_id_from_request(request)
 
     session_id = str(uuid.uuid4())
     seed = payload.user_seed or generate_session_seed(payload.question, user_id)
 
+    print(f"[CREATE_SESSION] Creating session {session_id} with lang={payload.lang}")
+    
     create_divination_session_v2(
         session_id=session_id,
         user_id=user_id,
@@ -294,12 +298,16 @@ async def get_interpretation(payload: InterpretRequest):
             )
 
     # 生成LLM解读
+    session_lang = session.get("lang", "zh")
+    print(f"[INTERPRET_ROUTE] Session lang value: {session_lang}")
+    print(f"[INTERPRET_ROUTE] Full session data keys: {list(session.keys())}")
+    
     interpretation = await generate_interpretation_v2(
         question=session["question"],
         method=session["method"],
         mode=session["mode"],
         result=result_data,
-        lang=session.get("lang", "zh"),
+        lang=session_lang,
     )
 
     # 保存解读

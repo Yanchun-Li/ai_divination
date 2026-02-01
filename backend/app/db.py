@@ -198,7 +198,7 @@ def get_divination_session_v2(session_id: str) -> dict | None:
     conn = get_connection()
     row = conn.execute(
         """
-        SELECT id, user_id, question, mode, method, seed, status,
+        SELECT id, user_id, question, mode, method, seed, lang, status,
                result, interpretation, manual_steps, created_at, completed_at
         FROM divination_sessions_v2
         WHERE id = ?

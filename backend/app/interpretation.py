@@ -501,18 +501,31 @@ async def generate_interpretation_v2(
     lang: str = "zh",
 ) -> DivinationInterpretation:
     """生成占卜解读。"""
+    print(f"[INTERPRETATION] ========== START ==========")
+    print(f"[INTERPRETATION] Language requested: {lang}")
+    print(f"[INTERPRETATION] Method: {method}, Mode: {mode}")
+    print(f"[INTERPRETATION] Question: {question[:50]}...")
+    
     # 构建提示词（传递语言参数）
     if method == "liuyao":
         user_prompt = _build_liuyao_prompt(question, mode, result, lang)
     else:
         user_prompt = _build_tarot_prompt(question, mode, result, lang)
 
+    print(f"[INTERPRETATION] User prompt language markers: {lang}")
+    print(f"[INTERPRETATION] User prompt first 200 chars: {user_prompt[:200]}...")
+
     # 选择对应语言的系统提示词
     system_prompt = SYSTEM_PROMPTS.get(lang, SYSTEM_PROMPTS["zh"])
+    print(f"[INTERPRETATION] System prompt language: {lang}")
+    print(f"[INTERPRETATION] System prompt first 100 chars: {system_prompt[:100]}...")
 
     try:
         # 调用LLM
+        print(f"[INTERPRETATION] Calling LLM...")
         content = await _call_llm(system_prompt, user_prompt, temperature=0.5)
+        print(f"[INTERPRETATION] LLM response length: {len(content)}")
+        print(f"[INTERPRETATION] LLM response first 300 chars: {content[:300]}...")
 
         # 解析响应
         parsed = _safe_parse_json(content)
