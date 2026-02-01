@@ -21,6 +21,7 @@ import {
 } from "../lib/api";
 import { aiGenerateLiuyao } from "../lib/liuyao";
 import { aiGenerateTarot } from "../lib/tarot";
+import { translations, type Language } from "../app/translations";
 
 interface UseDivinationReturn {
   state: DivinationFlowState;
@@ -310,43 +311,47 @@ export function useDivination(): UseDivinationReturn {
 // ===== 工具函数 =====
 
 /**
- * 获取阶段的中文描述
+ * 获取阶段的描述（支持多语言）
  */
-export function getStageText(stage: DivinationFlowState["stage"]): string {
+export function getStageText(stage: DivinationFlowState["stage"], lang: Language = "zh"): string {
+  const t = translations[lang].divination;
   const stageTexts: Record<DivinationFlowState["stage"], string> = {
-    idle: "等待输入",
-    question_entered: "已输入问题",
-    mode_selected: "已选择模式",
-    method_selected: "已选择方式",
-    in_progress: "占卜进行中",
-    generating: "正在生成结果",
-    interpreting: "正在解读",
-    completed: "占卜完成",
-    error: "发生错误",
+    idle: lang === "zh" ? "等待输入" : lang === "ja" ? "入力待ち" : "Waiting for input",
+    question_entered: lang === "zh" ? "已输入问题" : lang === "ja" ? "質問入力済み" : "Question entered",
+    mode_selected: lang === "zh" ? "已选择模式" : lang === "ja" ? "モード選択済み" : "Mode selected",
+    method_selected: lang === "zh" ? "已选择方式" : lang === "ja" ? "方法選択済み" : "Method selected",
+    in_progress: lang === "zh" ? "占卜进行中" : lang === "ja" ? "占い中" : "In progress",
+    generating: lang === "zh" ? "正在生成结果" : lang === "ja" ? "結果生成中" : "Generating result",
+    interpreting: lang === "zh" ? "正在解读" : lang === "ja" ? "解読中" : "Interpreting",
+    completed: lang === "zh" ? "占卜完成" : lang === "ja" ? "占い完了" : "Completed",
+    error: lang === "zh" ? "发生错误" : lang === "ja" ? "エラー発生" : "Error occurred",
   };
   return stageTexts[stage];
 }
 
 /**
- * 获取开始按钮的文案
+ * 获取开始按钮的文案（支持多语言）
  */
 export function getStartButtonText(
   mode: DivinationMode | null,
-  method: DivinationMethod | null
+  method: DivinationMethod | null,
+  lang: Language = "zh"
 ): string {
+  const t = translations[lang].divination;
+  
   if (!mode || !method) {
-    return "开始占卜";
+    return t.startDivination;
   }
 
   if (mode === "ai") {
-    return "开始占卜";
+    return t.startDivination;
   }
 
   if (method === "liuyao") {
-    return "开始起卦";
+    return t.startHexagram;
   }
 
-  return "开始抽牌";
+  return t.startDrawCards;
 }
 
 export default useDivination;

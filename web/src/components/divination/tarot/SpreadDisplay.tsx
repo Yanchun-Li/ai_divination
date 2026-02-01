@@ -3,32 +3,43 @@
 import type { TarotDraw, TarotResult } from "../../../types/divination";
 import { CardReveal } from "./CardReveal";
 import { SPREAD_POSITIONS } from "../../../lib/tarot";
+import { translations, type Language } from "../../../app/translations";
 
 interface SpreadDisplayProps {
   draws: TarotDraw[];
   showAll?: boolean;
   compact?: boolean;
+  lang?: Language;
 }
 
 export function SpreadDisplay({
   draws,
   showAll = true,
   compact = false,
+  lang = "zh",
 }: SpreadDisplayProps) {
+  const t = translations[lang];
+  const td = t.divination;
+
+  // 获取正位/逆位文本
+  const getOrientationText = (isUpright: boolean) => {
+    return isUpright ? "" : `(${td.reversed})`;
+  };
+
   return (
     <div className={`spread-display ${compact ? "compact" : ""}`}>
       {/* 牌阵标题 */}
       <div className="spread-header">
         <h3 className="spread-title">
-          {compact ? "牌阵：" : "三张牌阵"}
+          {compact ? td.spread : td.threeCardSpread}
           {compact && draws.map((d, i) => (
             <span key={d.position} className="inline-card-name">
-              {d.card.name}{d.is_upright ? "" : "(逆位)"}
+              {d.card.name}{getOrientationText(d.is_upright)}
               {i < draws.length - 1 ? " → " : ""}
             </span>
           ))}
         </h3>
-        {!compact && <p className="spread-subtitle">过去 - 现在 - 未来</p>}
+        {!compact && <p className="spread-subtitle">{td.pastPresentFuture}</p>}
       </div>
 
       {/* 牌位展示 - 非紧凑模式 */}
@@ -37,12 +48,13 @@ export function SpreadDisplay({
           {SPREAD_POSITIONS.map((position, index) => {
             const draw = draws.find((d) => d.position === position.id);
             const hasCard = !!draw;
+            const positionLabels = [td.positionPast, td.positionPresent, td.positionFuture];
 
             return (
               <div key={position.id} className="spread-position">
                 {/* 位置标签 */}
                 <div className="position-label">
-                  <span className="label-text">{position.label}</span>
+                  <span className="label-text">{positionLabels[index]}</span>
                 </div>
 
                 {/* 牌展示 */}

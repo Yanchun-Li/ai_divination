@@ -4,15 +4,19 @@ import { useState, useEffect } from "react";
 import { CardReveal } from "./CardReveal";
 import { SpreadDisplay } from "./SpreadDisplay";
 import { aiGenerateTarot, SPREAD_POSITIONS } from "../../../lib/tarot";
+import { translations, type Language } from "../../../app/translations";
 import type { TarotResult, TarotDraw } from "../../../types/divination";
 
 interface TarotAIProps {
   seed: string;
   onComplete: (result: TarotResult) => void;
   autoStart?: boolean;
+  lang?: Language;
 }
 
-export function TarotAI({ seed, onComplete, autoStart = true }: TarotAIProps) {
+export function TarotAI({ seed, onComplete, autoStart = true, lang = "zh" }: TarotAIProps) {
+  const t = translations[lang];
+  const td = t.divination;
   const [result, setResult] = useState<TarotResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [revealedCards, setRevealedCards] = useState<number[]>([]);
@@ -76,7 +80,7 @@ export function TarotAI({ seed, onComplete, autoStart = true }: TarotAIProps) {
                 </div>
               ))}
             </div>
-            <p className="generating-text">洗牌中...</p>
+            <p className="generating-text">{td.shuffling}</p>
           </div>
         </div>
       )}
@@ -86,11 +90,12 @@ export function TarotAI({ seed, onComplete, autoStart = true }: TarotAIProps) {
         <div className="reveal-animation">
           <div className="cards-reveal-row">
             {result.cards.map((draw, index) => {
+              const positionLabels = [td.positionPast, td.positionPresent, td.positionFuture];
               const isRevealed = revealedCards.includes(index);
               return (
                 <div key={draw.card.id} className="reveal-position">
                   <span className="position-label">
-                    {SPREAD_POSITIONS[index].label}
+                    {positionLabels[index]}
                   </span>
                   <CardReveal
                     card={draw.card}
@@ -103,7 +108,7 @@ export function TarotAI({ seed, onComplete, autoStart = true }: TarotAIProps) {
             })}
           </div>
           <p className="reveal-progress">
-            揭示中... {revealedCards.length}/3
+            {td.revealing} {revealedCards.length}/3
           </p>
         </div>
       )}
@@ -112,17 +117,17 @@ export function TarotAI({ seed, onComplete, autoStart = true }: TarotAIProps) {
       {!showAnimation && result && (
         <div className="result-container">
           <div className="result-header">
-            <h3>牌阵已成</h3>
+            <h3>{td.spreadComplete}</h3>
           </div>
 
-          <SpreadDisplay draws={result.cards} showAll={true} />
+          <SpreadDisplay draws={result.cards} showAll={true} lang={lang} />
 
           <div className="action-buttons">
             <button className="btn-secondary" onClick={handleRegenerate}>
-              重新抽牌
+              {td.redrawCards}
             </button>
             <button className="btn-primary" onClick={() => onComplete(result)}>
-              查看解读
+              {td.viewInterpretation}
             </button>
           </div>
         </div>

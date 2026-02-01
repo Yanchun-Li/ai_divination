@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useDivination, getStartButtonText } from "../../hooks/useDivination";
 import { LiuyaoManual, LiuyaoAI, HexagramDisplay } from "./liuyao";
 import { TarotManual, TarotAI, SpreadDisplay } from "./tarot";
+import { translations, type Language } from "../../app/translations";
 import type {
   DivinationMode,
   DivinationMethod,
@@ -18,7 +19,7 @@ interface DivinationViewProps {
   initialQuestion?: string;
   initialMode?: DivinationMode;
   initialMethod?: DivinationMethod;
-  lang?: string;
+  lang?: Language;
   onComplete?: (result: LiuyaoResult | TarotResult, interpretation: DivinationInterpretation | null) => void;
   onActiveChange?: (isActive: boolean) => void;
   onReset?: () => void;
@@ -33,6 +34,10 @@ export function DivinationView({
   onActiveChange,
   onReset 
 }: DivinationViewProps) {
+  // 获取翻译
+  const t = translations[lang];
+  const td = t.divination;
+
   const {
     state,
     setQuestion,
@@ -131,18 +136,18 @@ export function DivinationView({
       {!isControlled && (state.stage === "idle" || state.stage === "question_entered" || state.stage === "mode_selected" || state.stage === "method_selected") && (
         <div className="setup-section">
           <div className="intro-header">
-            <h3 className="intro-title">开启你的专属仪式</h3>
-            <p className="intro-desc">告诉我你心中的烦恼或想知道的事。这是一次专属且不可逆的占卜，我们将陪伴你寻找答案。</p>
+            <h3 className="intro-title">{t.ritualIntroTitle}</h3>
+            <p className="intro-desc">{t.ritualIntroDesc}</p>
           </div>
           {/* 问题输入 */}
           <div className="question-input-container">
             <label htmlFor="question" className="input-label">
-              你想问什么？
+              {t.greetingTitle}
             </label>
             <textarea
               id="question"
               className="question-input"
-              placeholder="请输入你想问的问题..."
+              placeholder={t.ritualPlaceholder}
               value={state.question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => {
@@ -159,46 +164,46 @@ export function DivinationView({
 
           {/* 模式选择 */}
           <div className="selector-group">
-            <label className="group-label">选择占卜模式</label>
+            <label className="group-label">{t.modeLabel}</label>
             <div className="button-group">
               <button
                 className={`mode-button ${state.mode === "ai" ? "active" : ""}`}
                 onClick={() => setMode("ai")}
               >
                 <span className="button-icon">✨</span>
-                <span className="button-text">AI替我占</span>
-                <span className="button-desc">自动生成结果</span>
+                <span className="button-text">{t.modeAi}</span>
+                <span className="button-desc">{t.modeAiDesc}</span>
               </button>
               <button
                 className={`mode-button ${state.mode === "manual" ? "active" : ""}`}
                 onClick={() => setMode("manual")}
               >
                 <span className="button-icon">🤲</span>
-                <span className="button-text">我自己占</span>
-                <span className="button-desc">亲手参与过程</span>
+                <span className="button-text">{t.modeManual}</span>
+                <span className="button-desc">{t.modeManualDesc}</span>
               </button>
             </div>
           </div>
 
           {/* 方式选择 */}
           <div className="selector-group">
-            <label className="group-label">选择占卜方式</label>
+            <label className="group-label">{t.methodLabel}</label>
             <div className="button-group">
               <button
                 className={`method-button ${state.method === "liuyao" ? "active" : ""}`}
                 onClick={() => setMethod("liuyao")}
               >
                 <span className="button-icon">☰</span>
-                <span className="button-text">六爻起卦</span>
-                <span className="button-desc">易经铜钱法</span>
+                <span className="button-text">{t.methodLiuyao}</span>
+                <span className="button-desc">{t.liuyaoDesc}</span>
               </button>
               <button
                 className={`method-button ${state.method === "tarot" ? "active" : ""}`}
                 onClick={() => setMethod("tarot")}
               >
                 <span className="button-icon">🎴</span>
-                <span className="button-text">塔罗牌</span>
-                <span className="button-desc">三张牌阵</span>
+                <span className="button-text">{t.methodTarot}</span>
+                <span className="button-desc">{t.tarotDesc}</span>
               </button>
             </div>
           </div>
@@ -209,7 +214,7 @@ export function DivinationView({
             onClick={() => startDivination(lang)}
             disabled={!canStart || state.isLoading}
           >
-            {state.isLoading ? "准备中..." : getStartButtonText(state.mode, state.method)}
+            {state.isLoading ? td.preparing : getStartButtonText(state.mode, state.method, lang)}
           </button>
 
           {state.error && (
@@ -223,7 +228,7 @@ export function DivinationView({
         <div className="divination-section">
           {/* 问题回显 */}
           <div className="question-display">
-            <span className="question-label">你的问题</span>
+            <span className="question-label">{td.yourQuestion}</span>
             <p className="question-text">「{state.question}」</p>
           </div>
 
@@ -233,6 +238,7 @@ export function DivinationView({
               seed={state.seed}
               onComplete={handleResultComplete}
               autoStart={true}
+              lang={lang}
             />
           )}
 
@@ -242,6 +248,7 @@ export function DivinationView({
               seed={state.seed}
               onComplete={handleResultComplete}
               autoStart={true}
+              lang={lang}
             />
           )}
 
@@ -268,8 +275,8 @@ export function DivinationView({
         <div className="interpreting-section">
           <div className="loading-indicator">
             <div className="spinner" />
-            <p className="loading-text">正在为你解读...</p>
-            <p className="loading-hint">正在连接AI服务，请稍候...</p>
+            <p className="loading-text">{td.interpreting}</p>
+            <p className="loading-hint">{td.connectingAI}</p>
           </div>
         </div>
       )}
@@ -278,8 +285,8 @@ export function DivinationView({
       {state.stage === "error" && (
         <div className="error-section">
           <div className="error-card">
-            <h3 className="error-title">出现问题</h3>
-            <p className="error-text">{state.error || "发生未知错误"}</p>
+            <h3 className="error-title">{td.errorOccurred}</h3>
+            <p className="error-text">{state.error || td.unknownError}</p>
             <div className="error-actions">
               {localResult && state.sessionId && (
                 <button className="btn-primary" onClick={async () => {
@@ -289,11 +296,11 @@ export function DivinationView({
                     console.error("Retry failed:", error);
                   }
                 }}>
-                  重试解读
+                  {td.retryInterpretation}
                 </button>
               )}
               <button className="btn-secondary" onClick={() => { reset(); onReset?.(); }}>
-                重新开始
+                {td.restartDivination}
               </button>
             </div>
           </div>
@@ -305,13 +312,13 @@ export function DivinationView({
         <div className="result-section">
           {/* 问题回显 */}
           <div className="question-display">
-            <span className="question-label">你的问题</span>
+            <span className="question-label">{td.yourQuestion}</span>
             <p className="question-text">「{state.question}」</p>
           </div>
 
           {/* 占卜结果展示 */}
           <div className="divination-result-card">
-            <h3 className="result-card-title">占卜结果</h3>
+            <h3 className="result-card-title">{td.divinationResult}</h3>
             
             {/* 六爻结果 */}
             {localResult && localResult.type === "liuyao" && (
@@ -330,13 +337,14 @@ export function DivinationView({
                 draws={(localResult as TarotResult).cards}
                 showAll={true}
                 compact={true}
+                lang={lang}
               />
             )}
           </div>
 
           {/* 解读内容 */}
           <div className="interpretation-card">
-            <h3 className="interpretation-title">占卜解读</h3>
+            <h3 className="interpretation-title">{td.divinationInterpretation}</h3>
 
             {/* 一句话总结 */}
             <div className="summary-box">
@@ -345,7 +353,7 @@ export function DivinationView({
 
             {/* 解释要点 */}
             <div className="reasoning-section">
-              <h4 className="section-title">解读要点</h4>
+              <h4 className="section-title">{td.interpretationPoints}</h4>
               <ul className="reasoning-list">
                 {state.interpretation.reasoning_bullets.map((bullet, i) => (
                   <li key={i} className="reasoning-item">{bullet}</li>
@@ -355,19 +363,19 @@ export function DivinationView({
 
             {/* 建议 */}
             <div className="advice-section">
-              <h4 className="section-title">行动建议</h4>
+              <h4 className="section-title">{td.actionAdvice}</h4>
               <p className="advice-text">{state.interpretation.advice}</p>
             </div>
 
             {/* 时机 */}
             <div className="timing-section">
-              <span className="timing-label">时机提示：</span>
+              <span className="timing-label">{td.timingHint}</span>
               <span className="timing-text">{state.interpretation.timing}</span>
             </div>
 
             {/* 追问 */}
             <div className="followup-section">
-              <h4 className="section-title">也许你还想知道</h4>
+              <h4 className="section-title">{td.youMayWantToKnow}</h4>
               <div className="followup-questions">
                 {state.interpretation.follow_up_questions.map((q, i) => (
                   <span key={i} className="followup-tag">{q}</span>
@@ -384,7 +392,7 @@ export function DivinationView({
           {/* 操作按钮 */}
           <div className="action-buttons">
             <button className="btn-secondary" onClick={() => { reset(); onReset?.(); }}>
-              再占一次
+              {td.divinateAgain}
             </button>
           </div>
         </div>

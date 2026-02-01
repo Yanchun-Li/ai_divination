@@ -3,15 +3,19 @@
 import { useState, useEffect } from "react";
 import { HexagramDisplay } from "./HexagramDisplay";
 import { aiGenerateLiuyao } from "../../../lib/liuyao";
+import { translations, type Language } from "../../../app/translations";
 import type { LiuyaoResult } from "../../../types/divination";
 
 interface LiuyaoAIProps {
   seed: string;
   onComplete: (result: LiuyaoResult) => void;
   autoStart?: boolean;
+  lang?: Language;
 }
 
-export function LiuyaoAI({ seed, onComplete, autoStart = true }: LiuyaoAIProps) {
+export function LiuyaoAI({ seed, onComplete, autoStart = true, lang = "zh" }: LiuyaoAIProps) {
+  const t = translations[lang];
+  const td = t.divination;
   const [result, setResult] = useState<LiuyaoResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAnimation, setShowAnimation] = useState(true);
@@ -77,7 +81,7 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true }: LiuyaoAIProps) 
 
             {/* 进度指示 */}
             <div className="progress-indicator">
-              <span className="progress-text">第 {animationStep}/6 爻</span>
+              <span className="progress-text">{td.lineProgress.replace("{current}", String(animationStep))}</span>
               <div className="progress-bar">
                 <div
                   className="progress-fill"
@@ -86,7 +90,7 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true }: LiuyaoAIProps) 
               </div>
             </div>
 
-            <p className="generating-text">天机运转中...</p>
+            <p className="generating-text">{td.calculatingFate}</p>
           </div>
         </div>
       )}
@@ -95,7 +99,7 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true }: LiuyaoAIProps) 
       {!showAnimation && result && (
         <div className="result-container">
           <div className="result-header">
-            <h3>卦象已成</h3>
+            <h3>{td.hexagramComplete}</h3>
           </div>
 
           <HexagramDisplay
@@ -107,10 +111,10 @@ export function LiuyaoAI({ seed, onComplete, autoStart = true }: LiuyaoAIProps) 
 
           <div className="action-buttons">
             <button className="btn-secondary" onClick={handleRegenerate}>
-              重新起卦
+              {td.regenerateHexagram}
             </button>
             <button className="btn-primary" onClick={() => onComplete(result)}>
-              查看解读
+              {td.viewInterpretation}
             </button>
           </div>
         </div>
