@@ -2,6 +2,7 @@
 
 import type { Hexagram, LiuyaoLine, CoinToss } from "../../../types/divination";
 import { LineDisplay } from "./LineDisplay";
+import { translations, type Language } from "../../../app/translations";
 
 interface HexagramDisplayProps {
   hexagram: Hexagram;
@@ -10,6 +11,7 @@ interface HexagramDisplayProps {
   relatingHexagram?: Hexagram;
   showLines?: boolean;
   compact?: boolean;
+  lang?: Language;
 }
 
 export function HexagramDisplay({
@@ -19,7 +21,9 @@ export function HexagramDisplay({
   relatingHexagram,
   showLines = true,
   compact = false,
+  lang = "zh",
 }: HexagramDisplayProps) {
+  const td = translations[lang].divination;
   // 获取显示用的爻数据（优先使用lines，否则使用tosses）
   const lineData = lines || tosses;
 
@@ -30,14 +34,14 @@ export function HexagramDisplay({
         <div className="compact-hexagram-row">
           <div className="compact-hexagram-item">
             <span className="compact-symbol">{hexagram.symbol}</span>
-            <span className="compact-name">{hexagram.name}卦</span>
+            <span className="compact-name">{hexagram.name}{lang !== "en" ? td.hexagram : ""}</span>
           </div>
           {relatingHexagram && (
             <>
               <span className="compact-arrow">→</span>
               <div className="compact-hexagram-item">
                 <span className="compact-symbol">{relatingHexagram.symbol}</span>
-                <span className="compact-name">{relatingHexagram.name}卦</span>
+                <span className="compact-name">{relatingHexagram.name}{lang !== "en" ? td.hexagram : ""}</span>
               </div>
             </>
           )}
@@ -101,8 +105,8 @@ export function HexagramDisplay({
 
         {/* 上下卦 */}
         <div className="trigram-info">
-          <span>上卦：{hexagram.upper_trigram}</span>
-          <span>下卦：{hexagram.lower_trigram}</span>
+          <span>{td.upperTrigram}：{hexagram.upper_trigram}</span>
+          <span>{td.lowerTrigram}：{hexagram.lower_trigram}</span>
         </div>
       </div>
 
@@ -124,6 +128,7 @@ export function HexagramDisplay({
                 position={position}
                 showDetails={true}
                 isHighlighted={isChanging}
+                lang={lang}
               />
             );
           })}

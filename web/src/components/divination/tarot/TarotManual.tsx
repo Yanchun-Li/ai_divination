@@ -28,7 +28,13 @@ export function TarotManual({ onComplete, onStepComplete, lang = "zh" }: TarotMa
   
   // 使用翻译后的进度文本
   const progressText = td.tarotProgress.replace("{n}", String(Math.min(state.currentStep + 1, 3)));
-  const currentPrompt = isComplete ? td.threeCardsRevealed : td.focusAndDraw;
+  
+  // 根据当前步骤获取位置提示
+  const getPositionPromptText = (step: number): string => {
+    const prompts = [td.positionPromptPast, td.positionPromptPresent, td.positionPromptFuture];
+    return prompts[step] || "";
+  };
+  const currentPrompt = isComplete ? td.threeCardsRevealed : getPositionPromptText(state.currentStep);
 
   const [lastDraw, setLastDraw] = useState<import("../../../types/divination").TarotDraw | null>(null);
   const [showLastReveal, setShowLastReveal] = useState(false);
@@ -92,6 +98,7 @@ export function TarotManual({ onComplete, onStepComplete, lang = "zh" }: TarotMa
             onSelectCard={handleSelectCard}
             disabled={state.isRevealing}
             selectedCardId={state.selectedCardIndex}
+            lang={lang}
           />
         </div>
       )}

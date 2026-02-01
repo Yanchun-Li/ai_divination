@@ -56,8 +56,12 @@ export interface TarotCard {
   name_en: string; // "The Fool"
   arcana: TarotArcana;
   suit: TarotSuit; // 大阿尔克那为null
-  upright_keywords: string[]; // 正位关键词
-  reversed_keywords: string[]; // 逆位关键词
+  upright_keywords: string[]; // 正位关键词(中文)
+  reversed_keywords: string[]; // 逆位关键词(中文)
+  upright_keywords_en?: string[]; // 正位关键词(英文)
+  reversed_keywords_en?: string[]; // 逆位关键词(英文)
+  upright_keywords_ja?: string[]; // 正位关键词(日语)
+  reversed_keywords_ja?: string[]; // 逆位关键词(日语)
 }
 
 export interface TarotDraw {

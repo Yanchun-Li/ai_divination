@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import type { TarotCard } from "../../../types/divination";
 import { MAJOR_ARCANA } from "../../../lib/tarot";
+import { translations, type Language } from "../../../app/translations";
 
 interface CardDeckProps {
   availableCardIds: number[];
   onSelectCard: (cardId: number) => void;
   disabled?: boolean;
   selectedCardId?: number | null;
+  lang?: Language;
 }
 
 export function CardDeck({
@@ -16,7 +18,9 @@ export function CardDeck({
   onSelectCard,
   disabled = false,
   selectedCardId,
+  lang = "zh",
 }: CardDeckProps) {
+  const td = translations[lang].divination;
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -65,7 +69,7 @@ export function CardDeck({
   return (
     <div className="card-deck">
       <p className="deck-hint-top">
-        {disabled ? "请等待..." : "在下方选择一张牌（可左右滑动）"}
+        {disabled ? td.pleaseWait : td.selectCardBelow}
       </p>
       
       <div 
@@ -93,7 +97,7 @@ export function CardDeck({
                 onMouseLeave={() => setHoveredId(null)}
                 role="button"
                 tabIndex={isAvailable ? 0 : -1}
-                aria-label={`选择牌 ${card.name}`}
+                aria-label={`${td.selectCard} ${card.id}`}
                 aria-disabled={!isAvailable || disabled}
               >
                 <div className="card-back">
@@ -110,7 +114,7 @@ export function CardDeck({
 
       <div className="scroll-indicators">
         <span className="scroll-arrow left">←</span>
-        <span className="scroll-text">滑动浏览</span>
+        <span className="scroll-text">{td.swipeToBrowse}</span>
         <span className="scroll-arrow right">→</span>
       </div>
 

@@ -388,8 +388,13 @@ export function getCoinResultText(coins: [number, number, number], lang: string 
 /**
  * 获取爻位名称
  */
-export function getPositionName(position: number): string {
-  const names = ["初", "二", "三", "四", "五", "上"];
+export function getPositionName(position: number, lang: string = "zh"): string {
+  const positionNames: Record<string, string[]> = {
+    zh: ["初", "二", "三", "四", "五", "上"],
+    ja: ["初", "二", "三", "四", "五", "上"],
+    en: ["1st", "2nd", "3rd", "4th", "5th", "6th"],
+  };
+  const names = positionNames[lang] || positionNames.zh;
   return names[position - 1] || "";
 }
 

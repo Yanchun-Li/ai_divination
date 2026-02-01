@@ -73,6 +73,7 @@ export function LiuyaoManual({ onComplete, onStepComplete, lang = "zh" }: Liuyao
                     position={position}
                     showDetails={true}
                     isHighlighted={toss.is_changing}
+                    lang={lang}
                   />
                   <span className="toss-result-text">
                     {formatTossResult(toss, lang)}
@@ -103,6 +104,7 @@ export function LiuyaoManual({ onComplete, onStepComplete, lang = "zh" }: Liuyao
             tosses={state.tosses}
             relatingHexagram={state.hexagrams.relating || undefined}
             showLines={true}
+            lang={lang}
           />
 
           <div className="action-buttons">

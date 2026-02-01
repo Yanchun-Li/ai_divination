@@ -2,6 +2,7 @@
 
 import type { LiuyaoLine, CoinToss } from "../../../types/divination";
 import { getYaoName, getPositionName } from "../../../lib/liuyao";
+import { translations, type Language } from "../../../app/translations";
 
 interface LineDisplayProps {
   line?: LiuyaoLine;
@@ -9,6 +10,7 @@ interface LineDisplayProps {
   position: number;
   showDetails?: boolean;
   isHighlighted?: boolean;
+  lang?: Language;
 }
 
 export function LineDisplay({
@@ -17,7 +19,9 @@ export function LineDisplay({
   position,
   showDetails = true,
   isHighlighted = false,
+  lang = "zh",
 }: LineDisplayProps) {
+  const td = translations[lang].divination;
   // 从line或toss中获取数据
   const isYang = line
     ? line.is_yang
@@ -27,7 +31,7 @@ export function LineDisplay({
 
   const isChanging = line ? line.is_changing : toss?.is_changing || false;
   const yaoType = line?.yao_type || toss?.yao_type;
-  const posName = getPositionName(position);
+  const posName = getPositionName(position, lang);
 
   return (
     <div className={`line-display ${isHighlighted ? "highlighted" : ""}`}>
@@ -53,9 +57,9 @@ export function LineDisplay({
       {/* 详细信息 */}
       {showDetails && yaoType && (
         <div className="line-details">
-          <span className="position-name">{posName}爻</span>
-          <span className="yao-name">{getYaoName(yaoType)}</span>
-          {isChanging && <span className="changing-label">动</span>}
+          <span className="position-name">{posName}{td.yao}</span>
+          <span className="yao-name">{getYaoName(yaoType, lang)}</span>
+          {isChanging && <span className="changing-label">{td.moving}</span>}
         </div>
       )}
 

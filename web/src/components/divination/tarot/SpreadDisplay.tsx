@@ -2,7 +2,7 @@
 
 import type { TarotDraw, TarotResult } from "../../../types/divination";
 import { CardReveal } from "./CardReveal";
-import { SPREAD_POSITIONS } from "../../../lib/tarot";
+import { SPREAD_POSITIONS, getCardMeaning } from "../../../lib/tarot";
 import { translations, type Language } from "../../../app/translations";
 
 interface SpreadDisplayProps {
@@ -54,6 +54,7 @@ export function SpreadDisplay({
             const draw = draws.find((d) => d.position === position.id);
             const hasCard = !!draw;
             const positionLabels = [td.positionPast, td.positionPresent, td.positionFuture];
+            const positionMeanings = [td.positionMeaningPast, td.positionMeaningPresent, td.positionMeaningFuture];
 
             return (
               <div key={position.id} className="spread-position">
@@ -80,12 +81,12 @@ export function SpreadDisplay({
                 </div>
 
                 {/* 位置含义 */}
-                <p className="position-meaning">{position.meaning}</p>
+                <p className="position-meaning">{positionMeanings[index]}</p>
 
                 {/* 牌的解读 */}
                 {hasCard && (
                   <div className="card-meaning">
-                    <p className="meaning-text">{draw.meaning}</p>
+                    <p className="meaning-text">{getCardMeaning(draw.card, draw.is_upright, lang)}</p>
                   </div>
                 )}
               </div>

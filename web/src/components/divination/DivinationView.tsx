@@ -330,6 +330,7 @@ export function DivinationView({
                 relatingHexagram={(localResult as LiuyaoResult).relating_hexagram ?? undefined}
                 showLines={true}
                 compact={true}
+                lang={lang}
               />
             )}
 
