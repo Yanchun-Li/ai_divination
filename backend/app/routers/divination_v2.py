@@ -291,11 +291,23 @@ async def get_interpretation(payload: InterpretRequest):
         )
         result_data = result.model_dump()
     else:
+        # AI模式：从session获取result，如果没有则根据seed生成
         result_data = session.get("result")
         if not result_data:
-            raise HTTPException(
-                status_code=400, detail="No result available for interpretation"
-            )
+            # AI模式下可以根据seed重新生成相同的结果
+            if session["mode"] == DivinationMode.AI.value and session.get("seed"):
+                print(f"[INTERPRET] AI mode: generating result from seed {session['seed']}")
+                if session["method"] == DivinationMethod.LIUYAO.value:
+                    result = ai_generate_liuyao(session["seed"])
+                else:
+                    result = ai_generate_tarot(session["seed"])
+                result_data = result.model_dump()
+                # 保存到session以便后续使用
+                update_divination_session_v2(session["id"], result=result_data)
+            else:
+                raise HTTPException(
+                    status_code=400, detail="No result available for interpretation"
+                )
 
     # 生成LLM解读
     session_lang = session.get("lang", "zh")
