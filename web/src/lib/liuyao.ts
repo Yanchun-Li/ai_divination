@@ -17,11 +17,25 @@ const YAO_TYPE_MAP: Record<number, YaoType> = {
   9: "old_yang", // 动爻，阳变阴
 };
 
-const YAO_NAMES: Record<YaoType, string> = {
-  old_yin: "老阴",
-  young_yin: "少阴",
-  young_yang: "少阳",
-  old_yang: "老阳",
+const YAO_NAMES: Record<string, Record<YaoType, string>> = {
+  zh: {
+    old_yin: "老阴",
+    young_yin: "少阴",
+    young_yang: "少阳",
+    old_yang: "老阳",
+  },
+  ja: {
+    old_yin: "老陰",
+    young_yin: "少陰",
+    young_yang: "少陽",
+    old_yang: "老陽",
+  },
+  en: {
+    old_yin: "Old Yin",
+    young_yin: "Young Yin",
+    young_yang: "Young Yang",
+    old_yang: "Old Yang",
+  },
 };
 
 const YAO_SYMBOLS: Record<YaoType, string> = {
@@ -345,8 +359,9 @@ export function aiGenerateLiuyao(seed: string): LiuyaoResult {
 /**
  * 获取爻的名称
  */
-export function getYaoName(yaoType: YaoType): string {
-  return YAO_NAMES[yaoType];
+export function getYaoName(yaoType: YaoType, lang: string = "zh"): string {
+  const names = YAO_NAMES[lang] || YAO_NAMES.zh;
+  return names[yaoType];
 }
 
 /**
@@ -359,8 +374,14 @@ export function getYaoSymbol(yaoType: YaoType): string {
 /**
  * 获取铜钱结果描述
  */
-export function getCoinResultText(coins: [number, number, number]): string {
-  const faces = coins.map((c) => (c === 3 ? "正" : "反"));
+export function getCoinResultText(coins: [number, number, number], lang: string = "zh"): string {
+  const coinLabels: Record<string, { heads: string; tails: string }> = {
+    zh: { heads: "正", tails: "反" },
+    ja: { heads: "表", tails: "裏" },
+    en: { heads: "H", tails: "T" },
+  };
+  const labels = coinLabels[lang] || coinLabels.zh;
+  const faces = coins.map((c) => (c === 3 ? labels.heads : labels.tails));
   return faces.join("·");
 }
 

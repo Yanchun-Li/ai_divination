@@ -3,14 +3,17 @@
 import { useState } from "react";
 import type { CoinToss as CoinTossType } from "../../../types/divination";
 import { getCoinResultText, getYaoName } from "../../../lib/liuyao";
+import { translations, type Language } from "../../../app/translations";
 
 interface CoinTossProps {
   onToss: () => Promise<CoinTossType | undefined>;
   disabled?: boolean;
   isAnimating?: boolean;
+  lang?: Language;
 }
 
-export function CoinToss({ onToss, disabled, isAnimating }: CoinTossProps) {
+export function CoinToss({ onToss, disabled, isAnimating, lang = "zh" }: CoinTossProps) {
+  const td = translations[lang].divination;
   const [lastResult, setLastResult] = useState<CoinTossType | null>(null);
   const [showResult, setShowResult] = useState(false);
 
@@ -35,11 +38,11 @@ export function CoinToss({ onToss, disabled, isAnimating }: CoinTossProps) {
             className={`coin ${isAnimating ? "animating" : ""}`}
             onClick={handleToss}
             disabled={disabled || isAnimating}
-            aria-label={`铜钱 ${index + 1}`}
+            aria-label={`Coin ${index + 1}`}
           >
             <div className="coin-inner">
-              <div className="coin-front">正</div>
-              <div className="coin-back">反</div>
+              <div className="coin-front">{td.coinFront}</div>
+              <div className="coin-back">{td.coinBack}</div>
             </div>
           </button>
         ))}
@@ -47,11 +50,11 @@ export function CoinToss({ onToss, disabled, isAnimating }: CoinTossProps) {
 
       {/* 点击提示 */}
       {!isAnimating && !disabled && (
-        <p className="toss-hint">点击铜钱进行投掷</p>
+        <p className="toss-hint">{td.coinTossHint}</p>
       )}
 
       {/* 动画中提示 */}
-      {isAnimating && <p className="toss-hint animating">铜钱翻转中...</p>}
+      {isAnimating && <p className="toss-hint animating">{td.coinTossing}</p>}
 
       {/* 结果展示 */}
       {showResult && lastResult && !isAnimating && (
@@ -59,15 +62,15 @@ export function CoinToss({ onToss, disabled, isAnimating }: CoinTossProps) {
           <div className="result-coins">
             {lastResult.coins.map((coin, i) => (
               <span key={i} className={`result-coin ${coin === 3 ? "heads" : "tails"}`}>
-                {coin === 3 ? "正" : "反"}
+                {coin === 3 ? td.coinFront : td.coinBack}
               </span>
             ))}
           </div>
           <div className="result-text">
             <span className="result-sum">= {lastResult.sum}</span>
             <span className="result-yao">
-              {getYaoName(lastResult.yao_type)}
-              {lastResult.is_changing && <span className="changing-mark">（动）</span>}
+              {getYaoName(lastResult.yao_type, lang)}
+              {lastResult.is_changing && <span className="changing-mark">{td.movingYao}</span>}
             </span>
           </div>
         </div>

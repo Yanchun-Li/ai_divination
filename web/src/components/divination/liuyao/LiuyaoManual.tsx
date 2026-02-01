@@ -5,23 +5,30 @@ import { useLiuyao, formatTossResult } from "../../../hooks/useLiuyao";
 import { CoinToss } from "./CoinToss";
 import { LineDisplay } from "./LineDisplay";
 import { HexagramDisplay } from "./HexagramDisplay";
+import { translations, type Language } from "../../../app/translations";
 import type { LiuyaoResult } from "../../../types/divination";
 
 interface LiuyaoManualProps {
   onComplete: (result: LiuyaoResult) => void;
   onStepComplete?: (stepNumber: number, toss: import("../../../types/divination").CoinToss) => void;
+  lang?: Language;
 }
 
-export function LiuyaoManual({ onComplete, onStepComplete }: LiuyaoManualProps) {
+export function LiuyaoManual({ onComplete, onStepComplete, lang = "zh" }: LiuyaoManualProps) {
+  const td = translations[lang].divination;
   const {
     state,
     tossCoin,
     reset,
     isComplete,
     result,
-    currentStepText,
-    progressText,
   } = useLiuyao();
+  
+  // 根据语言生成进度文本
+  const progressText = td.lineProgress.replace("{current}", String(Math.min(state.currentStep + 1, 6)));
+  const currentStepText = isComplete
+    ? td.hexagramFormed
+    : td.stepHint.replace("{n}", String(state.currentStep + 1));
 
   const handleToss = async () => {
     if (state.isAnimating || isComplete) return;
@@ -55,7 +62,7 @@ export function LiuyaoManual({ onComplete, onStepComplete }: LiuyaoManualProps) 
       {/* 已完成的爻（从下往上显示） */}
       {state.tosses.length > 0 && (
         <div className="completed-lines">
-          <h4 className="section-title">已成之爻</h4>
+          <h4 className="section-title">{td.completedLines}</h4>
           <div className="lines-stack">
             {[...state.tosses].reverse().map((toss, reversedIndex) => {
               const position = state.tosses.length - reversedIndex;
@@ -68,7 +75,7 @@ export function LiuyaoManual({ onComplete, onStepComplete }: LiuyaoManualProps) 
                     isHighlighted={toss.is_changing}
                   />
                   <span className="toss-result-text">
-                    {formatTossResult(toss)}
+                    {formatTossResult(toss, lang)}
                   </span>
                 </div>
               );
@@ -83,13 +90,14 @@ export function LiuyaoManual({ onComplete, onStepComplete }: LiuyaoManualProps) 
           onToss={handleToss}
           disabled={isComplete}
           isAnimating={state.isAnimating}
+          lang={lang}
         />
       )}
 
       {/* 完成后显示卦象 */}
       {isComplete && result && state.hexagrams && (
         <div className="result-section">
-          <h4 className="section-title">卦象已成</h4>
+          <h4 className="section-title">{td.hexagramComplete}</h4>
           <HexagramDisplay
             hexagram={state.hexagrams.primary}
             tosses={state.tosses}
@@ -99,12 +107,12 @@ export function LiuyaoManual({ onComplete, onStepComplete }: LiuyaoManualProps) 
 
           <div className="action-buttons">
             <button className="btn-secondary" onClick={reset}>
-              重新起卦
+              {td.regenerateHexagram}
             </button>
             <button className="btn-primary" onClick={() => {
               if (result) onComplete(result);
             }}>
-              获取解读
+              {td.getInterpretation}
             </button>
           </div>
         </div>

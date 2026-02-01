@@ -257,6 +257,7 @@ export function DivinationView({
             <LiuyaoManual
               onComplete={handleResultComplete}
               onStepComplete={(step, toss) => handleManualStep(toss)}
+              lang={lang}
             />
           )}
 
@@ -265,6 +266,7 @@ export function DivinationView({
             <TarotManual
               onComplete={handleResultComplete}
               onStepComplete={(step, draw) => handleManualStep(draw)}
+              lang={lang}
             />
           )}
         </div>

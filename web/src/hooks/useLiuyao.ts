@@ -112,10 +112,16 @@ export function useLiuyao(): UseLiuyaoReturn {
 /**
  * 格式化投掷结果文本
  */
-export function formatTossResult(toss: CoinToss): string {
-  const coinsText = getCoinResultText(toss.coins);
-  const yaoName = getYaoName(toss.yao_type);
-  const changingMark = toss.is_changing ? "（动爻）" : "（不动爻）";
+export function formatTossResult(toss: CoinToss, lang: string = "zh"): string {
+  const coinsText = getCoinResultText(toss.coins, lang);
+  const yaoName = getYaoName(toss.yao_type, lang);
+  const changingMarks: Record<string, { changing: string; static: string }> = {
+    zh: { changing: "（动爻）", static: "（不动爻）" },
+    ja: { changing: "（動爻）", static: "（不動爻）" },
+    en: { changing: " (changing)", static: " (static)" },
+  };
+  const marks = changingMarks[lang] || changingMarks.zh;
+  const changingMark = toss.is_changing ? marks.changing : marks.static;
   return `${coinsText} → ${toss.sum} → ${yaoName}${changingMark}`;
 }
 
