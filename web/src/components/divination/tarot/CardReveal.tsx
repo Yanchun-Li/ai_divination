@@ -80,8 +80,8 @@ export function CardReveal({
             <span className="card-symbol">☆</span>
           </div>
           <div className="card-info">
-            <h3 className="card-name">{card.name}</h3>
-            <span className="card-name-en">{card.name_en}</span>
+            <h3 className="card-name">{lang === "en" ? card.name_en : card.name}</h3>
+            <span className="card-name-en">{lang === "en" ? card.name : card.name_en}</span>
             <span className={`orientation ${isUpright ? "upright" : "reversed"}`}>
               {orientation}
             </span>

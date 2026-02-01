@@ -26,6 +26,11 @@ export function SpreadDisplay({
     return isUpright ? "" : `(${td.reversed})`;
   };
 
+  // 根据语言获取牌名
+  const getCardName = (card: { name: string; name_en: string }) => {
+    return lang === "en" ? card.name_en : card.name;
+  };
+
   return (
     <div className={`spread-display ${compact ? "compact" : ""}`}>
       {/* 牌阵标题 */}
@@ -34,7 +39,7 @@ export function SpreadDisplay({
           {compact ? td.spread : td.threeCardSpread}
           {compact && draws.map((d, i) => (
             <span key={d.position} className="inline-card-name">
-              {d.card.name}{getOrientationText(d.is_upright)}
+              {getCardName(d.card)}{getOrientationText(d.is_upright)}
               {i < draws.length - 1 ? " → " : ""}
             </span>
           ))}
