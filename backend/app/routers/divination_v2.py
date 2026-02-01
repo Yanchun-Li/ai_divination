@@ -74,6 +74,13 @@ async def create_session(request: Request, payload: CreateSessionRequest):
         seed=seed,
         lang=payload.lang,
     )
+    
+    # 验证 session 创建成功
+    verify_session = get_divination_session_v2(session_id)
+    if verify_session:
+        print(f"[CREATE_SESSION] Session {session_id} created and verified successfully")
+    else:
+        print(f"[CREATE_SESSION] ERROR: Session {session_id} NOT found after creation!")
 
     return CreateSessionResponse(
         session_id=session_id,
@@ -241,9 +248,18 @@ async def get_interpretation(payload: InterpretRequest):
     """获取LLM解读。"""
     print(f"[INTERPRET] Received request for session: {payload.session_id}")
     
+    # 添加数据库路径日志
+    from ..db import DB_PATH, get_connection
+    print(f"[INTERPRET] Database path: {DB_PATH}, exists: {DB_PATH.exists()}")
+    
     session = get_divination_session_v2(payload.session_id)
     if not session:
         print(f"[INTERPRET] ERROR: Session not found: {payload.session_id}")
+        # 列出所有 sessions 帮助诊断
+        conn = get_connection()
+        all_sessions = conn.execute("SELECT id FROM divination_sessions_v2 LIMIT 10").fetchall()
+        conn.close()
+        print(f"[INTERPRET] Available sessions (first 10): {[s['id'] for s in all_sessions]}")
         raise HTTPException(status_code=404, detail="Session not found")
     
     print(f"[INTERPRET] Session found: mode={session['mode']}, method={session['method']}")

@@ -8,6 +8,10 @@ DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DATA_DIR / "app.db"
 
+print(f"[DB] BASE_DIR: {BASE_DIR}")
+print(f"[DB] DATA_DIR: {DATA_DIR}")
+print(f"[DB] DB_PATH: {DB_PATH}")
+
 
 def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
