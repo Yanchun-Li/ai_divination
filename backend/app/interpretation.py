@@ -118,58 +118,115 @@ def _build_liuyao_prompt(
     question: str,
     mode: str,
     result: dict[str, Any],
+    lang: str = "zh",
 ) -> str:
-    """构建六爻解读的用户提示词。"""
+    """构建六爻解读的用户提示词（支持多语言）。"""
     primary = result.get("primary_hexagram", {})
     relating = result.get("relating_hexagram")
     lines = result.get("lines", [])
     changing_lines = result.get("changing_lines", [])
 
+    # 多语言文本
+    texts = {
+        "zh": {
+            "line_names": ["初", "二", "三", "四", "五", "上"],
+            "yao_types": {"old_yin": "老阴", "young_yin": "少阴", "young_yang": "少阳", "old_yang": "老阳"},
+            "changing": "（动）",
+            "no_changing": "无动爻",
+            "changing_suffix": "动",
+            "user_question": "用户问题",
+            "divination_method": "占卜方式",
+            "liuyao_method": "六爻起卦",
+            "ai_generated": "AI生成",
+            "manual_cast": "手动投掷",
+            "hexagram_result": "卦象结果",
+            "primary_hexagram": "本卦",
+            "relating_hexagram": "变卦",
+            "changing_lines": "动爻",
+            "line_details": "六爻详情",
+            "interpretation_request": "请根据以上信息，结合用户的问题，提供占卜解读。",
+        },
+        "ja": {
+            "line_names": ["初", "二", "三", "四", "五", "上"],
+            "yao_types": {"old_yin": "老陰", "young_yin": "少陰", "young_yang": "少陽", "old_yang": "老陽"},
+            "changing": "（動）",
+            "no_changing": "動爻なし",
+            "changing_suffix": "動",
+            "user_question": "ユーザーの質問",
+            "divination_method": "占い方法",
+            "liuyao_method": "六爻占い",
+            "ai_generated": "AI生成",
+            "manual_cast": "手動投擲",
+            "hexagram_result": "卦象結果",
+            "primary_hexagram": "本卦",
+            "relating_hexagram": "変卦",
+            "changing_lines": "動爻",
+            "line_details": "六爻詳細",
+            "interpretation_request": "上記の情報とユーザーの質問に基づいて、占い解読を日本語で提供してください。",
+        },
+        "en": {
+            "line_names": ["1st", "2nd", "3rd", "4th", "5th", "6th"],
+            "yao_types": {"old_yin": "Old Yin", "young_yin": "Young Yin", "young_yang": "Young Yang", "old_yang": "Old Yang"},
+            "changing": " (changing)",
+            "no_changing": "No changing lines",
+            "changing_suffix": " changing",
+            "user_question": "User Question",
+            "divination_method": "Divination Method",
+            "liuyao_method": "Liu Yao (Six Lines)",
+            "ai_generated": "AI Generated",
+            "manual_cast": "Manual Cast",
+            "hexagram_result": "Hexagram Result",
+            "primary_hexagram": "Primary Hexagram",
+            "relating_hexagram": "Relating Hexagram",
+            "changing_lines": "Changing Lines",
+            "line_details": "Line Details",
+            "interpretation_request": "Based on the above information and the user's question, please provide the divination interpretation in English.",
+        },
+    }
+    t = texts.get(lang, texts["zh"])
+
     # 构建六爻详情
-    line_names = ["初", "二", "三", "四", "五", "上"]
     lines_detail = []
     for i, line in enumerate(lines):
         yao_type = line.get("yao_type", "")
         is_changing = line.get("is_changing", False)
-        yao_name = {
-            "old_yin": "老阴",
-            "young_yin": "少阴",
-            "young_yang": "少阳",
-            "old_yang": "老阳",
-        }.get(yao_type, yao_type)
-        changing_mark = "（动）" if is_changing else ""
-        lines_detail.append(f"{line_names[i]}爻：{yao_name}{changing_mark}")
+        yao_name = t["yao_types"].get(yao_type, yao_type)
+        changing_mark = t["changing"] if is_changing else ""
+        lines_detail.append(f"{t['line_names'][i]} line: {yao_name}{changing_mark}")
 
     # 动爻描述
     if changing_lines:
-        changing_desc = "、".join(f"{line_names[pos-1]}爻" for pos in changing_lines) + "动"
+        if lang == "en":
+            changing_desc = ", ".join(f"{t['line_names'][pos-1]} line" for pos in changing_lines) + t["changing_suffix"]
+        else:
+            changing_desc = "、".join(f"{t['line_names'][pos-1]}爻" for pos in changing_lines) + t["changing_suffix"]
     else:
-        changing_desc = "无动爻"
+        changing_desc = t["no_changing"]
 
     # 变卦部分
     relating_text = ""
     if relating:
         relating_text = f"""
-变卦：{relating.get('name', '')}（{relating.get('symbol', '')}）
+{t['relating_hexagram']}: {relating.get('name', '')} ({relating.get('symbol', '')})
 {relating.get('description', '')}"""
 
-    prompt = f"""【用户问题】
+    prompt = f"""【{t['user_question']}】
 {question}
 
-【占卜方式】
-六爻起卦（{"AI生成" if mode == "ai" else "手动投掷"}）
+【{t['divination_method']}】
+{t['liuyao_method']} ({t['ai_generated'] if mode == "ai" else t['manual_cast']})
 
-【卦象结果】
-本卦：{primary.get('name', '')}（{primary.get('symbol', '')}）
+【{t['hexagram_result']}】
+{t['primary_hexagram']}: {primary.get('name', '')} ({primary.get('symbol', '')})
 {primary.get('description', '')}
 {relating_text}
 
-动爻：{changing_desc}
+{t['changing_lines']}: {changing_desc}
 
-【六爻详情】
+【{t['line_details']}】
 {chr(10).join(lines_detail)}
 
-请根据以上信息，结合用户的问题，提供占卜解读。"""
+{t['interpretation_request']}"""
 
     return prompt
 
@@ -178,36 +235,105 @@ def _build_tarot_prompt(
     question: str,
     mode: str,
     result: dict[str, Any],
+    lang: str = "zh",
 ) -> str:
-    """构建塔罗解读的用户提示词。"""
+    """构建塔罗解读的用户提示词（支持多语言）。"""
     cards = result.get("cards", [])
+
+    # 多语言文本
+    texts = {
+        "zh": {
+            "user_question": "用户问题",
+            "divination_method": "占卜方式",
+            "tarot_spread": "塔罗牌三张牌阵",
+            "ai_generated": "AI生成",
+            "manual_draw": "手动抽牌",
+            "past_present_future": "过去/现在/未来",
+            "draw_result": "抽牌结果",
+            "position": "位置",
+            "upright": "正位",
+            "reversed": "逆位",
+            "keywords": "关键词",
+            "spread_direction": "牌阵解读方向",
+            "past": "过去",
+            "present": "现在",
+            "future": "未来",
+            "past_meaning": "影响当前问题的背景和根源",
+            "present_meaning": "当前状态和面临的核心议题",
+            "future_meaning": "如果保持现状，可能的发展方向",
+            "interpretation_request": "请根据以上信息，结合用户的问题，提供占卜解读。",
+        },
+        "ja": {
+            "user_question": "ユーザーの質問",
+            "divination_method": "占い方法",
+            "tarot_spread": "タロット三枚引き",
+            "ai_generated": "AI生成",
+            "manual_draw": "手動引き",
+            "past_present_future": "過去/現在/未来",
+            "draw_result": "引いたカード",
+            "position": "位置",
+            "upright": "正位置",
+            "reversed": "逆位置",
+            "keywords": "キーワード",
+            "spread_direction": "スプレッド解読方向",
+            "past": "過去",
+            "present": "現在",
+            "future": "未来",
+            "past_meaning": "現在の問題に影響を与えている背景と根源",
+            "present_meaning": "現在の状態と直面している核心的な問題",
+            "future_meaning": "現状を維持した場合の可能な展開",
+            "interpretation_request": "上記の情報とユーザーの質問に基づいて、占い解読を日本語で提供してください。",
+        },
+        "en": {
+            "user_question": "User Question",
+            "divination_method": "Divination Method",
+            "tarot_spread": "Tarot Three-Card Spread",
+            "ai_generated": "AI Generated",
+            "manual_draw": "Manual Draw",
+            "past_present_future": "Past/Present/Future",
+            "draw_result": "Cards Drawn",
+            "position": "Position",
+            "upright": "Upright",
+            "reversed": "Reversed",
+            "keywords": "Keywords",
+            "spread_direction": "Spread Interpretation Guide",
+            "past": "Past",
+            "present": "Present",
+            "future": "Future",
+            "past_meaning": "Background and root causes affecting the current issue",
+            "present_meaning": "Current state and core issues being faced",
+            "future_meaning": "Possible direction if current course is maintained",
+            "interpretation_request": "Based on the above information and the user's question, please provide the divination interpretation in English.",
+        },
+    }
+    t = texts.get(lang, texts["zh"])
 
     cards_detail = []
     for i, card_draw in enumerate(cards):
         card = card_draw.get("card", {})
         position_label = card_draw.get("position_label", "")
         is_upright = card_draw.get("is_upright", True)
-        orientation = "正位" if is_upright else "逆位"
+        orientation = t["upright"] if is_upright else t["reversed"]
         meaning = card_draw.get("meaning", "")
 
-        cards_detail.append(f"""位置{i+1} - {position_label}：{card.get('name', '')}（{orientation}）
-  关键词：{meaning}""")
+        cards_detail.append(f"""{t['position']}{i+1} - {position_label}: {card.get('name', '')} ({orientation})
+  {t['keywords']}: {meaning}""")
 
-    prompt = f"""【用户问题】
+    prompt = f"""【{t['user_question']}】
 {question}
 
-【占卜方式】
-塔罗牌三张牌阵（{"AI生成" if mode == "ai" else "手动抽牌"}）- 过去/现在/未来
+【{t['divination_method']}】
+{t['tarot_spread']} ({t['ai_generated'] if mode == "ai" else t['manual_draw']}) - {t['past_present_future']}
 
-【抽牌结果】
+【{t['draw_result']}】
 {chr(10).join(cards_detail)}
 
-【牌阵解读方向】
-- 过去：影响当前问题的背景和根源
-- 现在：当前状态和面临的核心议题
-- 未来：如果保持现状，可能的发展方向
+【{t['spread_direction']}】
+- {t['past']}: {t['past_meaning']}
+- {t['present']}: {t['present_meaning']}
+- {t['future']}: {t['future_meaning']}
 
-请根据以上信息，结合用户的问题，提供占卜解读。"""
+{t['interpretation_request']}"""
 
     return prompt
 
@@ -369,11 +495,11 @@ async def generate_interpretation_v2(
     lang: str = "zh",
 ) -> DivinationInterpretation:
     """生成占卜解读。"""
-    # 构建提示词
+    # 构建提示词（传递语言参数）
     if method == "liuyao":
-        user_prompt = _build_liuyao_prompt(question, mode, result)
+        user_prompt = _build_liuyao_prompt(question, mode, result, lang)
     else:
-        user_prompt = _build_tarot_prompt(question, mode, result)
+        user_prompt = _build_tarot_prompt(question, mode, result, lang)
 
     # 选择对应语言的系统提示词
     system_prompt = SYSTEM_PROMPTS.get(lang, SYSTEM_PROMPTS["zh"])

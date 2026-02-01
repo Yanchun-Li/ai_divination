@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { TarotCard } from "../../../types/divination";
 import { getOrientationText } from "../../../lib/tarot";
+import { translations, type Language } from "../../../app/translations";
 
 interface CardRevealProps {
   card: TarotCard;
@@ -11,6 +12,7 @@ interface CardRevealProps {
   onReveal?: () => void;
   showBack?: boolean;
   size?: "small" | "medium" | "large";
+  lang?: Language;
 }
 
 export function CardReveal({
@@ -20,7 +22,9 @@ export function CardReveal({
   onReveal,
   showBack = true,
   size = "medium",
+  lang = "zh",
 }: CardRevealProps) {
+  const td = translations[lang].divination;
   const [isFlipping, setIsFlipping] = useState(false);
   const [showFront, setShowFront] = useState(isRevealed);
 
@@ -44,7 +48,8 @@ export function CardReveal({
   const keywords = isUpright
     ? card.upright_keywords
     : card.reversed_keywords;
-  const orientation = getOrientationText(isUpright);
+  const orientation = getOrientationText(isUpright, lang);
+  const tarotCardLabel = lang === "zh" ? "塔罗牌" : lang === "ja" ? "タロットカード" : "Tarot Card";
 
   return (
     <div
@@ -54,7 +59,7 @@ export function CardReveal({
       onClick={handleClick}
       role="button"
       tabIndex={0}
-      aria-label={showFront ? `${card.name} ${orientation}` : "塔罗牌"}
+      aria-label={showFront ? `${card.name} ${orientation}` : tarotCardLabel}
     >
       <div className="card-inner">
         {/* 牌背 */}

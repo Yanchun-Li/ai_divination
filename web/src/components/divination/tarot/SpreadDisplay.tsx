@@ -65,6 +65,7 @@ export function SpreadDisplay({
                       isUpright={draw.is_upright}
                       isRevealed={showAll}
                       size="medium"
+                      lang={lang}
                     />
                   ) : (
                     <div className="empty-slot">
@@ -91,17 +92,21 @@ export function SpreadDisplay({
       {/* 紧凑模式 - 横向卡片列表 */}
       {compact && (
         <div className="compact-cards-row">
-          {draws.map((draw) => (
-            <div key={draw.position} className="compact-card-item">
-              <CardReveal
-                card={draw.card}
-                isUpright={draw.is_upright}
-                isRevealed={showAll}
-                size="small"
-              />
-              <span className="compact-card-label">{draw.position_label}</span>
-            </div>
-          ))}
+          {draws.map((draw, index) => {
+            const positionLabels = [td.positionPast, td.positionPresent, td.positionFuture];
+            return (
+              <div key={draw.position} className="compact-card-item">
+                <CardReveal
+                  card={draw.card}
+                  isUpright={draw.is_upright}
+                  isRevealed={showAll}
+                  size="small"
+                  lang={lang}
+                />
+                <span className="compact-card-label">{positionLabels[index]}</span>
+              </div>
+            );
+          })}
         </div>
       )}
 

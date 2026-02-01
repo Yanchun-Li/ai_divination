@@ -102,6 +102,7 @@ export function TarotAI({ seed, onComplete, autoStart = true, lang = "zh" }: Tar
                     isUpright={draw.is_upright}
                     isRevealed={isRevealed}
                     size="medium"
+                    lang={lang}
                   />
                 </div>
               );

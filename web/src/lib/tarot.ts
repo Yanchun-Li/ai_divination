@@ -256,10 +256,16 @@ export function getCardMeaning(card: TarotCard, isUpright: boolean): string {
 }
 
 /**
- * 获取牌的方向文本
+ * 获取牌的方向文本（支持多语言）
  */
-export function getOrientationText(isUpright: boolean): string {
-  return isUpright ? "正位" : "逆位";
+export function getOrientationText(isUpright: boolean, lang: string = "zh"): string {
+  const texts = {
+    zh: { upright: "正位", reversed: "逆位" },
+    ja: { upright: "正位置", reversed: "逆位置" },
+    en: { upright: "Upright", reversed: "Reversed" },
+  };
+  const t = texts[lang as keyof typeof texts] || texts.zh;
+  return isUpright ? t.upright : t.reversed;
 }
 
 /**
