@@ -26,9 +26,9 @@ export function SpreadDisplay({
     return isUpright ? "" : `(${td.reversed})`;
   };
 
-  // 根据语言获取牌名
+  // 根据语言获取牌名（日语和英语用英文牌名，中文用中文牌名）
   const getCardName = (card: { name: string; name_en: string }) => {
-    return lang === "en" ? card.name_en : card.name;
+    return lang === "zh" ? card.name : card.name_en;
   };
 
   return (
